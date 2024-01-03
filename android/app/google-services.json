@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1077388754122",
+    "firebase_url": "https://mts-partyup-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "mts-partyup",
+    "storage_bucket": "mts-partyup.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1077388754122:android:9099762993c02d707c0833",
+        "android_client_info": {
+          "package_name": "com.example.mts_partyup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAln_11Eam1Mv_lrE9m39Jz-8FAglLiVfA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
