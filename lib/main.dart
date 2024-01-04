@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/firebase_options.dart';
-import 'package:mts_partyup/real_time_database.dart';
+import 'package:mts_partyup/pages/home.dart';
 
 Future<void> main() async {
   // Connets your flutter project with firebase
@@ -15,9 +15,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: RealTimeDatabase(),
+      theme: ThemeData(fontFamily: 'Poppins'),
+      home: const Home(),
     );
   }
 }
