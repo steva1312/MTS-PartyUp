@@ -92,12 +92,12 @@ class Home extends StatelessWidget {
     return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: TipObjekta.values.map((o) => baton(context, o)).toList(),
+          children: TipUsluge.values.map((o) => baton(context, o)).toList(),
         ),
       );
   }
 
-  ElevatedButton baton(BuildContext context, TipObjekta tipObjekta) {
+  ElevatedButton baton(BuildContext context, TipUsluge tipObjekta) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         fixedSize: const Size.fromWidth(150)
@@ -107,7 +107,7 @@ class Home extends StatelessWidget {
           MaterialPageRoute(builder: (context) => Objekti(tipObjekta: tipObjekta))
         );
       }, 
-      child: Text(objekatToString(tipObjekta))
+      child: Text(uslugaToString(tipObjekta))
     );
   }
 }

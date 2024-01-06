@@ -1,6 +1,6 @@
 import 'package:uuid/uuid.dart';
 
-enum TipObjekta {
+enum TipUsluge {
   prostori,
   muzika,
   fotografi,
@@ -9,56 +9,55 @@ enum TipObjekta {
   dekoracije
 }
 
-String objekatToString(TipObjekta tipObjekta) {
+String uslugaToString(TipUsluge tipObjekta) {
   switch(tipObjekta) {
-    case TipObjekta.prostori:
+    case TipUsluge.prostori:
       return 'Prostori';
-    case TipObjekta.muzika:
+    case TipUsluge.muzika:
       return 'Muzika';
-    case TipObjekta.fotografi:
+    case TipUsluge.fotografi:
       return 'Fotografi';
-    case TipObjekta.torte:
+    case TipUsluge.torte:
       return 'Torte';
-    case TipObjekta.ketering:
+    case TipUsluge.ketering:
       return 'Ketering';
-    case TipObjekta.dekoracije:
+    case TipUsluge.dekoracije:
       return 'Dekoracije';
   }
 }
 
-TipObjekta stringToObjekat(String tipObjekta) {
+TipUsluge stringToUsluga(String tipObjekta) {
   switch(tipObjekta) {
     case 'Prostori':
-      return TipObjekta.prostori;
+      return TipUsluge.prostori;
     case 'Muzika':
-      return TipObjekta.muzika;
+      return TipUsluge.muzika;
     case 'Fotografi':
-      return TipObjekta.fotografi;
+      return TipUsluge.fotografi;
     case 'Torte':
-      return TipObjekta.torte;
+      return TipUsluge.torte;
     case 'Ketering':
-      return TipObjekta.ketering;
+      return TipUsluge.ketering;
     case 'Dekoracije':
-      return TipObjekta.dekoracije;
+      return TipUsluge.dekoracije;
   }
 
-  return TipObjekta.prostori; //mora difolt neki da ne javlja gresku
+  return TipUsluge.prostori; //mora difolt neki da ne javlja gresku
 }
 
-class Objekat {
+class Usluga {
   String id = '';
   String tipObjekta = '';
   String naziv = '';
   String grad = '';
   int cena = 0;
 
-  Objekat(this.tipObjekta, this.naziv, this.grad, this.cena) {
+  Usluga(this.tipObjekta, this.naziv, this.grad, this.cena) {
     id = const Uuid().v4();
   }
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "tipObjekta": tipObjekta,
     "naziv": naziv,
     "grad": grad,
     "cena": cena

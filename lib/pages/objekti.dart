@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
 
 class Objekti extends StatefulWidget {
-  final TipObjekta tipObjekta;
+  final TipUsluge tipObjekta;
 
   const Objekti({
     Key? key, 
@@ -26,7 +26,7 @@ class _ObjektiState extends State<Objekti> {
   }
 
   void getDataFromDB() {
-    objekitRef.child(objekatToString(widget.tipObjekta)).once().then((event) {
+    objekitRef.child(uslugaToString(widget.tipObjekta)).once().then((event) {
       setState(() {
         text = event.snapshot.value.toString();
       });
@@ -46,7 +46,7 @@ class _ObjektiState extends State<Objekti> {
       backgroundColor: Colors.white,
       centerTitle: true,
       title: Text(
-        objekatToString(widget.tipObjekta),
+        uslugaToString(widget.tipObjekta),
         style: const TextStyle(
             color: Colors.black, fontWeight: 
             FontWeight.bold, 

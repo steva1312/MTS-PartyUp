@@ -13,9 +13,9 @@ class AddObjekat extends StatefulWidget {
 }
 
 class _AddObjekatState extends State<AddObjekat> {
-  final objektiDbRef = FirebaseDatabase.instance.ref('Objekti');
+  final objektiDbRef = FirebaseDatabase.instance.ref('Usluge');
 
-  String inputTipObjekta = objekatToString(TipObjekta.values[0]);
+  String inputTipUsluge = uslugaToString(TipUsluge.values[0]);
   String inputNaziv = '';
   String inputOkurg = '';
   String inputGrad = '';
@@ -34,7 +34,7 @@ class _AddObjekatState extends State<AddObjekat> {
       backgroundColor: Colors.white,
       centerTitle: true,
       title: const Text(
-        'Dodaj objekat',
+        'Dodaj uslugu',
         style: TextStyle(
             color: Colors.black, fontWeight: 
             FontWeight.bold, 
@@ -71,16 +71,16 @@ class _AddObjekatState extends State<AddObjekat> {
         child: Column(
           children: [
             DropdownButtonFormField(
-              items: TipObjekta.values.map((o) => DropdownMenuItem(
-                value: objekatToString(o),
-                child: Text(objekatToString(o)),
+              items: TipUsluge.values.map((o) => DropdownMenuItem(
+                value: uslugaToString(o),
+                child: Text(uslugaToString(o)),
               )).toList(),
         
-              value: inputTipObjekta,
+              value: inputTipUsluge,
         
               onChanged: (String? newValue) {
                 setState(() {
-                  inputTipObjekta = newValue!;
+                  inputTipUsluge = newValue!;
                 });
               }
             ),
@@ -151,8 +151,8 @@ class _AddObjekatState extends State<AddObjekat> {
             ElevatedButton(
               onPressed: () async {
                 if(formKey.currentState!.validate()) {
-                  Objekat noviObjekat = Objekat(inputTipObjekta, inputNaziv, inputGrad, inputCena);
-                  await objektiDbRef.child(inputTipObjekta).child(noviObjekat.id).set(noviObjekat.toJson().toString());
+                  Usluga noviObjekat = Usluga(inputTipUsluge, inputNaziv, inputGrad, inputCena);
+                  await objektiDbRef.child(inputTipUsluge).child(noviObjekat.id).set(noviObjekat.toJson());
                 }
               }, 
               child: const Text('Dodaj')
