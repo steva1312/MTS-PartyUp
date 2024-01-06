@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
 
 class Objekti extends StatefulWidget {
-  final Objekat tipObjekta;
+  final TipObjekta tipObjekta;
 
   const Objekti({
     Key? key, 
@@ -23,7 +23,6 @@ class _ObjektiState extends State<Objekti> {
   void initState() {
     super.initState();
     getDataFromDB();
-    
   }
 
   void getDataFromDB() {

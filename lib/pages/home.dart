@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
+import 'package:mts_partyup/pages/add_objekat.dart';
 import 'package:mts_partyup/pages/bookmark.dart';
 import 'package:mts_partyup/pages/nalog.dart';
 import 'package:mts_partyup/pages/objekti.dart';
@@ -16,7 +17,15 @@ class Home extends StatelessWidget {
 
     return Scaffold(
       appBar: appBar(context),
-      body: body(context) 
+      body: body(context),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const AddObjekat())
+          );
+        },
+      ),
     );
   }
 
@@ -83,19 +92,12 @@ class Home extends StatelessWidget {
     return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            baton(context, Objekat.prostori),
-            baton(context, Objekat.muzika),
-            baton(context, Objekat.fotografi),
-            baton(context, Objekat.torte),
-            baton(context, Objekat.ketering),
-            baton(context, Objekat.dekoracije),
-          ],
+          children: TipObjekta.values.map((o) => baton(context, o)).toList(),
         ),
       );
   }
 
-  ElevatedButton baton(BuildContext context, Objekat tipObjekta) {
+  ElevatedButton baton(BuildContext context, TipObjekta tipObjekta) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         fixedSize: const Size.fromWidth(150)
