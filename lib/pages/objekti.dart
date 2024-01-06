@@ -6,9 +6,9 @@ class Objekti extends StatefulWidget {
   final TipUsluge tipObjekta;
 
   const Objekti({
-    Key? key, 
+    super.key, 
     required this.tipObjekta
-  }) : super(key: key);
+  });
 
   @override
   State<Objekti> createState() => _ObjektiState();

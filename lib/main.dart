@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/firebase_options.dart';
 import 'package:mts_partyup/pages/home.dart';
+import 'package:mts_partyup/pages/login.dart';
+import 'package:mts_partyup/pages/register.dart';
 
 Future<void> main() async {
   // Connets your flutter project with firebase
@@ -18,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Poppins'),
-      home: Home(),
+      home: Login(),
     );
   }
 }
