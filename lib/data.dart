@@ -1,4 +1,7 @@
-import 'package:uuid/uuid.dart';
+import 'dart:io';
+
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 enum TipUsluge {
   prostori,
@@ -47,14 +50,12 @@ TipUsluge stringToUsluga(String tipObjekta) {
 
 class Usluga {
   String id = '';
-  String tipObjekta = '';
+  String tipUsluge = '';
   String naziv = '';
   String grad = '';
-  int cena = 0;
+  String cena = '';
 
-  Usluga(this.tipObjekta, this.naziv, this.grad, this.cena) {
-    id = const Uuid().v4();
-  }
+  Usluga(this.id, this.tipUsluge, this.naziv, this.grad, this.cena);
 
   Map<String, dynamic> toJson() => {
     "id": id,
@@ -63,3 +64,69 @@ class Usluga {
     "cena": cena
   };
 }
+
+Future<File?> pickImageFromGallery() async {
+  final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+  if(pickedImage == null) return null;
+
+  return File(pickedImage.path);
+}
+
+Future<File?> pickImageFromGalleryAndCrop() async {
+  final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+  if(pickedImage == null) return null;
+
+  final croppedImage = await ImageCropper().cropImage(
+    sourcePath: pickedImage.path,
+    aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+    aspectRatioPresets: [CropAspectRatioPreset.square],
+    compressQuality: 70,
+    compressFormat: ImageCompressFormat.jpg,
+    uiSettings: [
+      AndroidUiSettings(
+        toolbarTitle: 'Podesi sliku'
+      ),
+      IOSUiSettings(
+        title: 'Podesi sliku',
+      )
+    ]
+  );
+
+  if(croppedImage == null) return null;
+
+  return File(croppedImage.path);
+}
+
+List<String> gradovi = [
+  'Beograd',
+  'Bor',
+  'Valjevo',
+  'Vranje',
+  'Vršac',
+  'Zaječar',
+  'Zrenjanin',
+  'Jagodina',
+  'Kikinda',
+  'Kragujevac',
+  'Kraljevo',
+  'Kruševac',
+  'Leskovac',
+  'Loznica',
+  'Niš',
+  'Novi Pazar',
+  'Novi Sad',
+  'Pančevo',
+  'Pirot',
+  'Požarevac',
+  'Priština',
+  'Prokuplje',
+  'Smederevo',
+  'Sombor',
+  'Sremska Mitrovica',
+  'Subotica',
+  'Užice',
+  'Čačak',
+  'Šabac',
+];

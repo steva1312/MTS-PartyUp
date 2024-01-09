@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mts_partyup/data.dart';
+import 'package:uuid/uuid.dart';
 
 final formKey = GlobalKey<FormState>();
 
@@ -14,12 +18,15 @@ class AddObjekat extends StatefulWidget {
 
 class _AddObjekatState extends State<AddObjekat> {
   final objektiDbRef = FirebaseDatabase.instance.ref('Usluge');
+  final storageRef = FirebaseStorage.instance.ref();
 
   String inputTipUsluge = uslugaToString(TipUsluge.values[0]);
   String inputNaziv = '';
   String inputOkurg = '';
   String inputGrad = '';
-  int inputCena = 0;
+  String inputCena = '';
+
+  File? pickedProfilePicture;
 
   @override
   Widget build(BuildContext context) {
@@ -68,96 +75,110 @@ class _AddObjekatState extends State<AddObjekat> {
       key: formKey,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(50, 20, 50, 0),
-        child: Column(
-          children: [
-            DropdownButtonFormField(
-              items: TipUsluge.values.map((o) => DropdownMenuItem(
-                value: uslugaToString(o),
-                child: Text(uslugaToString(o)),
-              )).toList(),
-        
-              value: inputTipUsluge,
-        
-              onChanged: (String? newValue) {
-                setState(() {
-                  inputTipUsluge = newValue!;
-                });
-              }
-            ),
-        
-            const SizedBox(height: 20,),
+        child: ListView(
+          children: [Column(
+            children: [
+              DropdownButtonFormField(
+                items: TipUsluge.values.map((o) => DropdownMenuItem(
+                  value: uslugaToString(o),
+                  child: Text(uslugaToString(o)),
+                )).toList(),
+          
+                value: inputTipUsluge,
+          
+                onChanged: (String? newValue) {
+                  setState(() {
+                    inputTipUsluge = newValue!;
+                  });
+                }
+              ),
+          
+              const SizedBox(height: 20,),
+          
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Ime objekta'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Ovo polje je obavezno';
+                  }
+                  else {
+                    return null;
+                  }
+                },
+                onChanged: (newValue) {
+                  setState(() {
+                    inputNaziv = newValue;
+                  });
+                },
+              ),
+                  
+              const SizedBox(height: 20,),
 
-            TextFormField(
-              decoration: const InputDecoration(labelText: 'Ime objekta'),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Ovo polje je obavezno';
-                }
-                else {
-                  return null;
-                }
-              },
-              onChanged: (newValue) {
-                setState(() {
-                  inputNaziv = newValue;
-                });
-              },
-            ),
-                
-            const SizedBox(height: 20,),
+              Autocomplete(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  return gradovi.where((String grad) => 
+                    grad.toLowerCase().contains(textEditingValue.text.toLowerCase())
+                  );
+                },
+              ),
+                  
+              const SizedBox(height: 20,),
+          
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Cena'),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Ovo polje je obavezno';
+                  }
+                  else {
+                    return null;
+                  }
+                },
+                onChanged: (newValue) {
+                  setState(() {
+                    inputCena = newValue;
+                  });
+                },
+              ),
+                  
+              const SizedBox(height: 20,),
+          
+              ElevatedButton(
+                onPressed: () async {
+                  final pickedImage = await pickImageFromGalleryAndCrop();
+                  
+                  setState(() {
+                    pickedProfilePicture = pickedImage;
+                  });
+                }, 
+                child: const Text('Izaberi sliku')
+              ),
+          
+              const SizedBox(height: 20,),
+          
+              if (pickedProfilePicture != null) Image.file(pickedProfilePicture!),
+          
+              const SizedBox(height: 20,),
+              
+              ElevatedButton(
+                onPressed: () async {
+                  if(formKey.currentState!.validate()) {
+                    String id = const Uuid().v4();
 
-            TextFormField(
-              decoration: const InputDecoration(labelText: 'Grad'),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Ovo polje je obavezno';
-                }
-                else {
-                  return null;
-                }
-              },
-              onChanged: (newValue) {
-                setState(() {
-                  inputGrad = newValue;
-                });
-              },
-            ),
-                
-            const SizedBox(height: 20,),
+                    Usluga noviObjekat = Usluga(id, inputTipUsluge, inputNaziv, inputGrad, inputCena);
+                    await objektiDbRef.child(inputTipUsluge).child(id).set(noviObjekat.toJson());
 
-            TextFormField(
-              decoration: const InputDecoration(labelText: 'Cena'),
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
-              ],
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Ovo polje je obavezno';
-                }
-                else {
-                  return null;
-                }
-              },
-              onChanged: (newValue) {
-                setState(() {
-                  inputCena = int.parse(newValue);
-                });
-              },
-            ),
-                
-            const SizedBox(height: 20,),
-            
-            ElevatedButton(
-              onPressed: () async {
-                if(formKey.currentState!.validate()) {
-                  Usluga noviObjekat = Usluga(inputTipUsluge, inputNaziv, inputGrad, inputCena);
-                  await objektiDbRef.child(inputTipUsluge).child(noviObjekat.id).set(noviObjekat.toJson());
-                }
-              }, 
-              child: const Text('Dodaj')
-            )
-          ],
+                    await storageRef.child('$id.${pickedProfilePicture!.path.split('.').last}').putFile(pickedProfilePicture!);
+                  }
+                }, 
+                child: const Text('Dodaj')
+              )
+            ],
+          ),]
         ),
       ),
     );

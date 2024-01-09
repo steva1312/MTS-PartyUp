@@ -1,20 +1,15 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
 import 'package:mts_partyup/pages/add_objekat.dart';
 import 'package:mts_partyup/pages/bookmark.dart';
 import 'package:mts_partyup/pages/nalog.dart';
-import 'package:mts_partyup/pages/objekti.dart';
+import 'package:mts_partyup/pages/usluge.dart';
 
 class Home extends StatelessWidget {
-  Home({super.key});
-
-  final dbRef = FirebaseDatabase.instance.ref('ACAB');
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    dbRef.set('1312');
-
     return Scaffold(
       appBar: appBar(context),
       body: body(context),
@@ -78,17 +73,17 @@ class Home extends StatelessWidget {
       );
   }
 
-  ElevatedButton baton(BuildContext context, TipUsluge tipObjekta) {
+  ElevatedButton baton(BuildContext context, TipUsluge tipUsluge) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         fixedSize: const Size.fromWidth(150)
       ),
       onPressed: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => Objekti(tipObjekta: tipObjekta))
+          MaterialPageRoute(builder: (context) => Usluge(tipUsluge: tipUsluge))
         );
       }, 
-      child: Text(uslugaToString(tipObjekta))
+      child: Text(uslugaToString(tipUsluge))
     );
   }
 }
