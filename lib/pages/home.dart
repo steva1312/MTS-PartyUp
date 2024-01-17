@@ -31,10 +31,10 @@ class Home extends StatelessWidget {
       title: const Text(
         'PartyUp',
         style: TextStyle(
-            color: Colors.black, fontWeight: 
-            FontWeight.bold, 
+            color: Colors.black, 
+            fontWeight: FontWeight.bold, 
             fontSize: 20
-          ),
+        ),
       ),
       elevation: 0.0,
       leading: IconButton(

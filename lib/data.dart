@@ -48,6 +48,58 @@ TipUsluge stringToUsluga(String tipObjekta) {
   return TipUsluge.prostori; //mora difolt neki da ne javlja gresku
 }
 
+String engToSrbMonthConverter(String day) {
+  switch(day) {
+    case 'Jan':
+      return 'Januar';
+    case 'Feb':
+      return 'Februar';
+    case 'Mar':
+      return 'Mart';
+    case 'Apr':
+      return 'April';
+    case 'May':
+      return 'Maj';
+    case 'Jun':
+      return 'Jun';
+    case 'Jul':
+      return 'Jul';
+    case 'Aug':
+      return 'Avgust';
+    case 'Sep':
+      return 'Septembar';
+    case 'Oct':
+      return 'Oktobar';
+    case 'Nov':
+      return 'Novembar';
+    case 'Dec':
+      return 'Decembar';
+  }
+
+  return 'Greska';
+}
+
+String engToSrbDayConverter(String day) {
+  switch(day) {
+    case 'Mon':
+      return 'Pon';
+    case 'Tue':
+      return 'Uto';
+    case 'Wed':
+      return 'Sre';
+    case 'Thu':
+      return 'Čet';
+    case 'Fri':
+      return 'Pet';
+    case 'Sat':
+      return 'Sub';
+    case 'Sun':
+      return 'Ned';
+  }
+
+  return 'Greska';
+}
+
 class Usluga {
   String id = '';
   String tipUsluge = '';

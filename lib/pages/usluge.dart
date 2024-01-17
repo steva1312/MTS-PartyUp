@@ -1,8 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:mts_partyup/data.dart';
+import 'package:mts_partyup/pages/usluga.dart';
 
 class Usluge extends StatefulWidget {
   final TipUsluge tipUsluge;
@@ -109,51 +109,66 @@ class _UslugeState extends State<Usluge> {
       children: usluge.map((u) => 
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Image(
-                    image: NetworkImage(profilePicturesUrls[u.id]!),
-                    fit: BoxFit.cover,
-                    width: 75,
-                    height: 75,
-                  ),
-                  const SizedBox(width: 10,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        u.naziv,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18
-                        )
-                      ),
-                      Text(
-                        u.grad,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 15
-                        )
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => UslugaPage(id: u.id, tipUsluge: widget.tipUsluge))
+              );
+            },
             
-              Text(
-                u.cena,
-                style: const TextStyle(
-                  color: Colors.blue,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20
-                )
-              ),
-            ],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FadeInImage.assetNetwork(
+                      image: profilePicturesUrls[u.id]!,
+                      placeholder: 'assets/icons/lokal.png',
+                      fit: BoxFit.cover,
+                      fadeInDuration: const Duration(milliseconds: 200),
+                      fadeOutDuration: const Duration(milliseconds: 200),
+                      fadeInCurve: Curves.easeIn,
+                      fadeOutCurve: Curves.easeOut,
+                      width: 75,
+                      height: 75,
+                    ),
+                    const SizedBox(width: 10,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          u.naziv,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18
+                          )
+                        ),
+                        Text(
+                          u.grad,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 15
+                          )
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              
+                Text(
+                  u.cena,
+                  style: const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20
+                  )
+                ),
+              ],
+            ),
           ),
         )
       ).toList(),
