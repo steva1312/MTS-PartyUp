@@ -22,7 +22,7 @@ class _AddObjekatState extends State<AddObjekat> {
 
   String inputTipUsluge = uslugaToString(TipUsluge.values[0]);
   String inputNaziv = '';
-  String inputOkurg = '';
+  String inputOkrug = '';
   String inputGrad = '';
   String inputCena = '';
 

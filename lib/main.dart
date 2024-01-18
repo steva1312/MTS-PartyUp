@@ -5,6 +5,7 @@ import 'package:mts_partyup/pages/home.dart';
 import 'package:mts_partyup/pages/kalendar_proba.dart';
 import 'package:mts_partyup/pages/login.dart';
 import 'package:mts_partyup/pages/register.dart';
+import 'package:mts_partyup/pages/register_owner.dart';
 import 'package:mts_partyup/pages/vlasnik.dart';
 import 'package:mts_partyup/pages/vlasnik_izmeni_profil.dart';
 
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Poppins'),
-      home: const Vlasnik(),
+      home: const Home(),
     );
   }
 }

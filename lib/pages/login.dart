@@ -4,6 +4,8 @@ import 'package:mts_partyup/pages/home.dart';
 import 'package:mts_partyup/pages/register.dart';
 
 class Login extends StatefulWidget {
+  const Login({super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -25,7 +27,7 @@ class _LoginPageState extends State<Login> {
     if (user != null) {
       // User is logged in
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Home()),
+        MaterialPageRoute(builder: (context) => const Home()),
       );
     }
   }
@@ -33,9 +35,9 @@ class _LoginPageState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: const Text('Login')),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: [
           Form(
             key: _formKey,
@@ -43,7 +45,7 @@ class _LoginPageState extends State<Login> {
               children: <Widget>[
                 TextFormField(
                   controller: _emailController,
-                  decoration: InputDecoration(labelText: 'Email'),
+                  decoration: const InputDecoration(labelText: 'Email'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
@@ -53,7 +55,7 @@ class _LoginPageState extends State<Login> {
                 ),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(labelText: 'Password'),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -68,15 +70,15 @@ class _LoginPageState extends State<Login> {
                       _login(_emailController.text, _passwordController.text);
                     }
                   },
-                  child: Text('Login'),
+                  child: const Text('Login'),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => Register()), // replace with your register page
+                      MaterialPageRoute(builder: (context) => const Register()), // replace with your register page
                     );
                   },
-                  child: Text("Don't have an account"),
+                  child: const Text("Don't have an account"),
                 ),
               ],
             ),
@@ -93,7 +95,7 @@ class _LoginPageState extends State<Login> {
         password: password,
       );
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Home()), // replace with your home page
+        MaterialPageRoute(builder: (context) => const Home()), // replace with your home page
       );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

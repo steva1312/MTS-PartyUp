@@ -1,11 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mts_partyup/pages/home.dart';
 import 'package:mts_partyup/pages/login.dart';
+import 'package:mts_partyup/pages/register_owner.dart';
 
 class Register extends StatefulWidget {
-  const Register({Key? key}) : super(key: key);
+  const Register({super.key});
 
   @override
 
@@ -20,38 +23,44 @@ class _RegisterPageState extends State<Register> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    checkIfUserIsLoggedIn();
-  }
-
-  Future<void> checkIfUserIsLoggedIn() async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      // User is logged in
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Home()),
-      );
-    }
-  }
+  final _nameController = TextEditingController();
+  final _surnameController = TextEditingController();
+  bool _isOwner = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
+      appBar: AppBar(title: const Text('Register')),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: [
           Form(
             key: _formKey,
             child: Column(
               children: <Widget>[
                 TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your name';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _surnameController,
+                  decoration: const InputDecoration(labelText: 'Surname'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your surname';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
                   controller: _emailController,
-                  decoration: InputDecoration(labelText: 'Email'),
+                  decoration: const InputDecoration(labelText: 'Email'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
@@ -76,21 +85,13 @@ class _RegisterPageState extends State<Register> {
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
+                      return 'Potvrdite sifru';
                     }
                     if (_passwordController.text != _confirmPasswordController.text) {
-                      return 'Passwords do not match';
+                      return 'Sifre se ne poklapaju';
                     }
                     return null;
                   },
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      _register(_emailController.text, _passwordController.text);
-                    }
-                  },
-                  child: const Text('Register'),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -99,6 +100,24 @@ class _RegisterPageState extends State<Register> {
                     );
                   },
                   child: const Text('Already have an account'),
+                ),
+                CheckboxListTile(
+                  title: const Text('Are you an owner?'),
+                  value: _isOwner,
+                  onChanged: (newValue) {
+                    setState(() {
+                      _isOwner = newValue ?? false;
+                    });
+                  },
+                  controlAffinity: ListTileControlAffinity.leading,  //  <-- leading Checkbox
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      _register(_emailController.text, _passwordController.text);
+                    }
+                  },
+                  child: const Text('Register'),
                 ),
               ],
             ),
@@ -114,9 +133,27 @@ class _RegisterPageState extends State<Register> {
         email: email,
         password: password,
       );
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Home()), // replace with your home page
-      );
+      if(_isOwner && context.mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const RegisterOwner(), // replace with your home page
+        ),
+        );
+      }
+      else {
+        FirebaseDatabase.instance.ref('Korisnici').child(
+            FirebaseAuth.instance.currentUser!.uid).set({
+          'Ime': _nameController.text,
+          'Prezime': _surnameController.text,
+          'Email': _emailController.text,
+
+        });
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (
+                context) => const Home()), // replace with your home page
+          );
+        }
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');
@@ -128,3 +165,4 @@ class _RegisterPageState extends State<Register> {
     }
   }
 }
+
