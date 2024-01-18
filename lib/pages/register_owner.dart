@@ -2,10 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mts_partyup/pages/home.dart';
-import 'package:mts_partyup/pages/login.dart';
-import 'package:mts_partyup/pages/register_owner.dart';
 
 class RegisterOwner extends StatefulWidget {
   const RegisterOwner({super.key});
@@ -76,10 +73,13 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-
-                      FirebaseDatabase.instance.ref('Uslugice').child(inputTipUsluge).child(FirebaseAuth.instance.currentUser!.uid).set({
-                        'Ime': _nameController.text,
-                        'Grad': inputImeGrada,
+                      final user = FirebaseAuth.instance.currentUser;
+                      final uid = user!.uid;
+                      final name = _nameController.text;
+                      final grad = inputImeGrada;
+                      FirebaseDatabase.instance.ref('Uslugice').child(inputTipUsluge).child(uid).set({
+                        'Ime': name,
+                        'Grad': grad,
                       });
 
                       Navigator.of(context).pushReplacement(

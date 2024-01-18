@@ -165,4 +165,3 @@ class _RegisterPageState extends State<Register> {
     }
   }
 }
-
