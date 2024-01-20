@@ -27,10 +27,36 @@ class _RegisterPageState extends State<Register> {
   final _surnameController = TextEditingController();
   bool _isOwner = false;
 
+  AppBar appBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      centerTitle: true,
+      title: const Text(
+        'Register',
+        style: TextStyle(
+            color: Colors.black, fontWeight:
+        FontWeight.bold,
+            fontSize: 20
+        ),
+      ),
+      elevation: 0.0,
+
+      leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.black,
+          )
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
+      appBar: appBar(context),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -40,20 +66,20 @@ class _RegisterPageState extends State<Register> {
               children: <Widget>[
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Name'),
+                  decoration: const InputDecoration(labelText: 'Ime'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
+                      return 'Unesite ime';
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: _surnameController,
-                  decoration: const InputDecoration(labelText: 'Surname'),
+                  decoration: const InputDecoration(labelText: 'Prezime'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your surname';
+                      return 'Unesite prezime';
                     }
                     return null;
                   },
@@ -63,25 +89,25 @@ class _RegisterPageState extends State<Register> {
                   decoration: const InputDecoration(labelText: 'Email'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'Unesite email';
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(labelText: 'Sifra'),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Unesite sifru';
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: _confirmPasswordController,
-                  decoration: const InputDecoration(labelText: 'Confirm Password'),
+                  decoration: const InputDecoration(labelText: 'Potvrdi sifru'),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -93,16 +119,8 @@ class _RegisterPageState extends State<Register> {
                     return null;
                   },
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => Login()), // replace with your login page
-                    );
-                  },
-                  child: const Text('Already have an account'),
-                ),
                 CheckboxListTile(
-                  title: const Text('Are you an owner?'),
+                  title: const Text('Da li ste pružalac usluga?'),
                   value: _isOwner,
                   onChanged: (newValue) {
                     setState(() {
@@ -113,8 +131,24 @@ class _RegisterPageState extends State<Register> {
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => Login()), // replace with your login page
+                    );
+                  },
+                  child: const Text('Već imaš nalog? Prijavi se!'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
-                      _register(_emailController.text, _passwordController.text);
+                      if(_isOwner) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => RegisterOwner(email: _emailController.text, password: _passwordController.text,), // replace with your home page
+                          ),
+                        );
+                      }
+                      else {
+                        _register(_emailController.text, _passwordController.text);
+                      }
                     }
                   },
                   child: const Text('Register'),
@@ -133,26 +167,17 @@ class _RegisterPageState extends State<Register> {
         email: email,
         password: password,
       );
-      if(_isOwner && context.mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const RegisterOwner(), // replace with your home page
-        ),
-        );
-      }
-      else {
-        FirebaseDatabase.instance.ref('Korisnici').child(
-            FirebaseAuth.instance.currentUser!.uid).set({
+      FirebaseDatabase.instance.ref('Korisnici').child(
+          FirebaseAuth.instance.currentUser!.uid).set({
           'Ime': _nameController.text,
           'Prezime': _surnameController.text,
           'Email': _emailController.text,
-
-        });
-        if (context.mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (
-                context) => const Home()), // replace with your home page
-          );
-        }
+      });
+      if (context.mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (
+              context) => const Home()), // replace with your home page
+        );
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {

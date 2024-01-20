@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/firebase_options.dart';
+import 'package:mts_partyup/pages/add_objekat.dart';
 import 'package:mts_partyup/pages/home.dart';
 import 'package:mts_partyup/pages/kalendar_proba.dart';
 import 'package:mts_partyup/pages/login.dart';

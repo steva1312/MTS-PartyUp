@@ -69,6 +69,7 @@ class _UslugeState extends State<Usluge> {
       body: body(context),
     );
   }
+  //uslugaToString(widget.tipUsluge),
 
   AppBar appBar(BuildContext context) {
     return AppBar(
@@ -77,28 +78,20 @@ class _UslugeState extends State<Usluge> {
       title: Text(
         uslugaToString(widget.tipUsluge),
         style: const TextStyle(
-            color: Colors.black, fontWeight: 
-            FontWeight.bold, 
+            color: Colors.black, fontWeight:
+            FontWeight.bold,
             fontSize: 20
           ),
       ),
       elevation: 0.0,
 
-      leading: GestureDetector(
-        onTap: () {
+      leading: IconButton(
+        onPressed: () {
           Navigator.pop(context);
         },
-        child: Container(
-          margin: const EdgeInsets.all(10),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-              color: const Color(0xffF7F8F8),
-              borderRadius: BorderRadius.circular(10)
-            ),
-          child: Image.asset(
-            'assets/icons/back.png',
-            height: 20,
-          ),
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: Colors.black,
         )
       ),
     );

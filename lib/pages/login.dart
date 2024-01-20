@@ -15,27 +15,36 @@ class _LoginPageState extends State<Login> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    checkIfUserIsLoggedIn();
-  }
+  AppBar appBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      centerTitle: true,
+      title: const Text(
+        'Login',
+        style: TextStyle(
+            color: Colors.black, fontWeight:
+        FontWeight.bold,
+            fontSize: 20
+        ),
+      ),
+      elevation: 0.0,
 
-  Future<void> checkIfUserIsLoggedIn() async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      // User is logged in
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const Home()),
-      );
-    }
+      leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.black,
+          )
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: appBar(context),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -48,18 +57,18 @@ class _LoginPageState extends State<Login> {
                   decoration: const InputDecoration(labelText: 'Email'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'Unesite email';
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(labelText: 'Sifra'),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Unesite sifru';
                     }
                     return null;
                   },
@@ -78,7 +87,7 @@ class _LoginPageState extends State<Login> {
                       MaterialPageRoute(builder: (context) => const Register()), // replace with your register page
                     );
                   },
-                  child: const Text("Don't have an account"),
+                  child: const Text("Nemaš nalog? Registruj se!"),
                 ),
               ],
             ),

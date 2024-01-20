@@ -15,13 +15,6 @@ class Home extends StatelessWidget {
     return Scaffold(
       appBar: appBar(context),
       body: body(context),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const AddObjekat()));
-        },
-      ),
     );
   }
 
