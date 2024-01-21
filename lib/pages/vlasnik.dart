@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
+import 'package:mts_partyup/pages/kalendar_proba.dart';
 import 'package:mts_partyup/pages/vlasnik_izmeni_profil.dart';
 
 class Vlasnik extends StatefulWidget {
@@ -21,6 +22,8 @@ class _VlasnikState extends State<Vlasnik> {
   Usluga? usluga;
   String? profilePictureUrl;
 
+  Map<String, dynamic> jsonDatumi = {};
+
   @override void initState() {
     super.initState();
     uslugeRef.child(tipUsluge).child(id).once().then((event) async {
@@ -32,7 +35,12 @@ class _VlasnikState extends State<Vlasnik> {
 
       setState(() {
         usluga = Usluga(id, tipUsluge, naziv, grad, cena);
+
         profilePictureUrl = url;
+        
+        for (var datumSnapshot in event.snapshot.child('Zakazano').children) {
+          jsonDatumi[datumSnapshot.key!] = '';
+        }
       });
     });
   }
@@ -69,7 +77,10 @@ class _VlasnikState extends State<Vlasnik> {
 
           ElevatedButton(
             onPressed: () {
-              //todo
+              print(jsonDatumi.toString());
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => Kalendar(usluga: usluga!, jsonDatumi: jsonDatumi,))
+              );
             },
             child: const Text('Zakazi datum'),
           ),

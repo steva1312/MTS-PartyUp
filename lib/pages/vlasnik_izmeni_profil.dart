@@ -59,7 +59,7 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
             size: 33,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            _showCancelDialog();
           },
         ),
         actions: [
@@ -230,16 +230,18 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
       context: context, 
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
           title: const Text('Sačuvaj promene'),
           content: const Text('Da li ste sigurni da hoćete da sačuvate promene?'),
           actions: [
             ElevatedButton(
               onPressed: () {
-                
+                Navigator.pop(context);
               }, 
 
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: const Color(0xFFededed),
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
                 shape: const RoundedRectangleBorder(
@@ -254,11 +256,11 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
 
             ElevatedButton(
               onPressed: () {
-                
-              }, 
+                _save();
+              },
 
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: const Color(0xFFededed),
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
                 shape: const RoundedRectangleBorder(
@@ -275,6 +277,60 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
       }
     );
   }
+
+  void _showCancelDialog() {
+    showDialog(
+      context: context, 
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          title: const Text('Odbaci promene'),
+          content: const Text('Da li ste sigurni da hoćete da odbacite promene?'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              }, 
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFededed),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10)
+                  )
+                )
+              ),
+
+              child: const Text('Poništi'),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFededed),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10)
+                  )
+                )
+              ),
+
+              child: const Text('Odbaci'),
+            )
+          ],
+        );
+      }
+    );
+  }
   
   void _save() async {
     if (newProfilePicture != null) {
@@ -283,5 +339,8 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
 
     Usluga noviObjekat = Usluga(widget.usluga.id, widget.usluga.tipUsluge, nazivController.text, gradController.text, cenaController.text);
     await uslugeRef.child(widget.usluga.tipUsluge).child(widget.usluga.id).set(noviObjekat.toJson());
+
+    Navigator.pop(context);
+    Navigator.pop(context);
   }
 }

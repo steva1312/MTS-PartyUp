@@ -106,9 +106,10 @@ class _UslugeState extends State<Usluge> {
             behavior: HitTestBehavior.translucent,
 
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => UslugaPage(id: u.id, tipUsluge: widget.tipUsluge))
-              );
+              //ovo je staro gledaj usluge2.dart
+              // Navigator.of(context).push(
+              //   MaterialPageRoute(builder: (context) => UslugaPage(id: u.id, tipUsluge: widget.tipUsluge))
+              // );
             },
             
             child: Row(

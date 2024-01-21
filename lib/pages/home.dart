@@ -6,6 +6,7 @@ import 'package:mts_partyup/pages/bookmark.dart';
 import 'package:mts_partyup/pages/login.dart';
 import 'package:mts_partyup/pages/nalog.dart';
 import 'package:mts_partyup/pages/usluge.dart';
+import 'package:mts_partyup/pages/usluge2.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -13,6 +14,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: appBar(context),
       body: body(context),
     );
@@ -71,7 +73,7 @@ class Home extends StatelessWidget {
         style: ElevatedButton.styleFrom(fixedSize: const Size.fromWidth(150)),
         onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => Usluge(tipUsluge: tipUsluge)));
+              builder: (context) => Usluge2(tipUsluge: tipUsluge)));
         },
         child: Text(uslugaToString(tipUsluge)));
   }

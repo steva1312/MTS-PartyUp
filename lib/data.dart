@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -114,6 +115,25 @@ class Usluga {
     "naziv": naziv,
     "grad": grad,
     "cena": cena
+  };
+}
+
+class Usluga2 {
+  String id = '';
+  String ime= '';
+  String grad = '';
+  String opis = '';
+
+  Usluga2(DataSnapshot snapshot, this.id) {
+    ime = snapshot.child('Ime').value.toString();
+    grad = snapshot.child('Grad').value.toString();
+    opis = snapshot.child('Description').value.toString();
+  }
+
+  Map<String, dynamic> toJson() => {
+    "Ime": ime,
+    "Grad": grad,
+    "Description": opis,
   };
 }
 
