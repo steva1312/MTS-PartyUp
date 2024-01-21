@@ -124,7 +124,8 @@ class Usluga2 {
   String grad = '';
   String opis = '';
 
-  Usluga2(DataSnapshot snapshot, this.id) {
+  Usluga2(DataSnapshot snapshot) {
+    id = snapshot.key!;
     ime = snapshot.child('Ime').value.toString();
     grad = snapshot.child('Grad').value.toString();
     opis = snapshot.child('Description').value.toString();

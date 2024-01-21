@@ -39,7 +39,7 @@ class _Usluge2State extends State<Usluge2> {
       List<Usluga2> ucitaneUsluge = [];
       
       for(DataSnapshot uslugaSnapshot in event.snapshot.children) {
-        Usluga2 u = Usluga2(uslugaSnapshot, uslugaSnapshot.key!);
+        Usluga2 u = Usluga2(uslugaSnapshot);
         ucitaneUsluge.add(u);
 
         print(uslugaSnapshot.child('Ime').value.toString());
