@@ -102,6 +102,9 @@ class _RegisterPageState extends State<Register> {
                     if (value == null || value.isEmpty) {
                       return 'Unesite sifru';
                     }
+                    if (value.length < 6) {
+                      return 'Sifra mora imati najmanje 6 karaktera';
+                    }
                     return null;
                   },
                 ),

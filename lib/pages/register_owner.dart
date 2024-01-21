@@ -1,12 +1,10 @@
 import 'dart:io';
-import 'package:mts_partyup/pages/register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:mts_partyup/pages/home.dart';
-import 'package:uuid/uuid.dart';
 
 
 class RegisterOwner extends StatefulWidget {
@@ -36,10 +34,36 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
   File? pickedProfilePicture;
   final storageRef = FirebaseStorage.instance.ref();
 
+  AppBar appBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      centerTitle: true,
+      title: const Text(
+        'Register',
+        style: TextStyle(
+            color: Colors.black, fontWeight:
+        FontWeight.bold,
+            fontSize: 20
+        ),
+      ),
+      elevation: 0.0,
+
+      leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.black,
+          )
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
+      appBar: appBar(context),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -66,7 +90,6 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
                       value: o,
                       child: Text(o),
                     )).toList(),
-
                     value: inputImeGrada,
 
                     onChanged: (String? newValue) {
@@ -85,16 +108,24 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
                     return null;
                   },
                 ),
-                TextFormField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(labelText: 'Opis'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Unesite opis';
-                    }
-                    return null;
-                  },
+
+                SizedBox(
+                  height: 150,
+                  child: TextFormField(
+                    controller: _descriptionController,
+                    decoration: const InputDecoration(labelText: 'Opis', alignLabelWithHint: true),
+                    maxLines: null,
+                    expands: true,
+                    keyboardType: TextInputType.multiline,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Unesite opis';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
+
 
 
 
