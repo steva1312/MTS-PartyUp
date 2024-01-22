@@ -44,21 +44,13 @@ class _UslugaPageState extends State<UslugaPage> {
       ),
       elevation: 0.0,
 
-      leading: GestureDetector(
-        onTap: () {
+      leading: IconButton(
+        onPressed: () {
           Navigator.pop(context);
         },
-        child: Container(
-          margin: const EdgeInsets.all(10),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-              color: const Color(0xffF7F8F8),
-              borderRadius: BorderRadius.circular(10)
-            ),
-          child: Image.asset(
-            'assets/icons/back.png',
-            height: 20,
-          ),
+        icon: const Icon(
+          Icons.arrow_back_ios_new,
+          color: Colors.black,
         )
       ),
     );

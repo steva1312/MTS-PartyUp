@@ -1,8 +1,26 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'package:firebase_database/firebase_database.dart';
 
-class Nalog extends StatelessWidget {
+class Nalog extends StatefulWidget {
   const Nalog({super.key});
+
+  @override
+  _NalogPageState createState() => _NalogPageState();
+}
+
+class _NalogPageState extends State<Nalog> {
+  final _formKey = GlobalKey<FormState>();
+
+  Future<bool> isOwner() async {
+    final event = await FirebaseDatabase.instance
+        .ref('Korisnici')
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .once(DatabaseEventType.value);
+    return !event.snapshot.exists;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,29 +31,17 @@ class Nalog extends StatelessWidget {
         title: const Text(
           'Nalog',
           style: TextStyle(
-              color: Colors.black, fontWeight:
-          FontWeight.bold,
-              fontSize: 20
-          ),
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
         ),
         elevation: 0.0,
-        leading: GestureDetector(
-            onTap: () {
+        leading: IconButton(
+            onPressed: () {
               Navigator.pop(context);
             },
-            child: Container(
-              margin: const EdgeInsets.all(10),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                  color: const Color(0xffF7F8F8),
-                  borderRadius: BorderRadius.circular(10)
-              ),
-              child: Image.asset(
-                'assets/icons/back.png',
-                height: 20,
-              ),
-            )
-        ),
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.black,
+            )),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -48,6 +54,18 @@ class Nalog extends StatelessWidget {
           ),
         ],
       ),
+      body: ListView(padding: const EdgeInsets.all(16.0), children: [
+        Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                if(isOwner() is bool)
+                  const Text('Usluga')
+                else
+                  const Text('Korisnik')
+              ],
+            ))
+      ]),
     );
   }
 }
