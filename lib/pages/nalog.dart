@@ -13,13 +13,24 @@ class Nalog extends StatefulWidget {
 
 class _NalogPageState extends State<Nalog> {
   final _formKey = GlobalKey<FormState>();
+  bool? isOwner;
 
-  Future<bool> isOwner() async {
+  @override
+  void initState() {
+    super.initState();
+    setIsOwner();  
+  }
+
+  void setIsOwner() async {
     final event = await FirebaseDatabase.instance
         .ref('Korisnici')
         .child(FirebaseAuth.instance.currentUser!.uid)
         .once(DatabaseEventType.value);
-    return !event.snapshot.exists;
+    
+    setState(() {
+      isOwner = !event.snapshot.exists;
+      print(isOwner.toString());
+    });
   }
 
   @override
@@ -59,9 +70,11 @@ class _NalogPageState extends State<Nalog> {
             key: _formKey,
             child: Column(
               children: [
-                if(isOwner() is bool)
-                  const Text('Usluga')
-                else
+                if(isOwner == null)
+                  const Text('Ucitavanje...')
+                else if (isOwner == true)
+                  const Text('Vlasnik')
+                else 
                   const Text('Korisnik')
               ],
             ))
