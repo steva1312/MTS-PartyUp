@@ -150,7 +150,7 @@ class Ocena {
   String komentar = '';
   String? imePrezime;
 
-  Ocena(this.ocena, this.komentar);
+  Ocena(this.idKorisnika, this.ocena, this.komentar);
 
   //ovo se poziva u usluge2.dart
   Ocena.fromSnapshot(DataSnapshot snapshot) {
