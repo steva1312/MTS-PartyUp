@@ -124,17 +124,55 @@ class Usluga2 {
   String grad = '';
   String opis = '';
 
+  List<Ocena> ocene = [];
+
   Usluga2(DataSnapshot snapshot) {
     id = snapshot.key!;
     ime = snapshot.child('Ime').value.toString();
     grad = snapshot.child('Grad').value.toString();
     opis = snapshot.child('Description').value.toString();
+
+    for (DataSnapshot ocenaSnapshot in snapshot.child('Ocene').children) {
+      ocene.add(Ocena.fromSnapshot(ocenaSnapshot));
+    }
   }
 
   Map<String, dynamic> toJson() => {
     "Ime": ime,
     "Grad": grad,
     "Description": opis,
+  };
+}
+
+class Ocena {
+  String idKorisnika = '';
+  int ocena = 0;
+  String komentar = '';
+  String? imePrezime;
+
+  Ocena(this.ocena, this.komentar);
+
+  //ovo se poziva u usluge2.dart
+  Ocena.fromSnapshot(DataSnapshot snapshot) {
+    idKorisnika = snapshot.key!;
+    ocena = int.parse(snapshot.child('Ocena').value.toString());
+    print(ocena);
+    komentar = snapshot.child('Komentar').value.toString();
+    //imePrezime se odredjuje u usluga.dart zbog optimizacije
+  }
+
+  Future<void> postaviImePrezime(DatabaseReference korisniciRef) async {
+    await korisniciRef.child(idKorisnika).once().then((event) {
+      String ime = event.snapshot.child('Ime').value.toString();
+      String prezime = event.snapshot.child('Prezime').value.toString();
+
+      imePrezime = '$ime $prezime';
+    });
+  }
+
+  Map<String, dynamic> toJson() => {
+    "Ocena": ocena,
+    "Komentar": komentar,
   };
 }
 

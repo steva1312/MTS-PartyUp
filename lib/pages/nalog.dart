@@ -29,7 +29,6 @@ class _NalogPageState extends State<Nalog> {
     
     setState(() {
       isOwner = !event.snapshot.exists;
-      print(isOwner.toString());
     });
   }
 

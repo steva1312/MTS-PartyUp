@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class Usluge2 extends StatefulWidget {
 class _Usluge2State extends State<Usluge2> {
   final objekitRef = FirebaseDatabase.instance.ref('Usluga');
   final storageRef = FirebaseStorage.instance.ref();
+  bool? isOwner;
 
   String text = 'Usluge';
   List<Usluga2> usluge = [];
@@ -28,6 +30,7 @@ class _Usluge2State extends State<Usluge2> {
   void initState() {
     super.initState();
     getDataFromDB();
+    setIsOwner();
   }
 
   void getDataFromDB() {
@@ -41,8 +44,6 @@ class _Usluge2State extends State<Usluge2> {
       for(DataSnapshot uslugaSnapshot in event.snapshot.children) {
         Usluga2 u = Usluga2(uslugaSnapshot);
         ucitaneUsluge.add(u);
-
-        print(uslugaSnapshot.child('Ime').value.toString());
 
         final profilePictureUrl = await storageRef.child('${u.id}.jpg').getDownloadURL();
 
@@ -59,9 +60,23 @@ class _Usluge2State extends State<Usluge2> {
     });
   }
 
+  void setIsOwner() async {
+    if (FirebaseAuth.instance.currentUser == null) return;
+
+    final event = await FirebaseDatabase.instance
+        .ref('Korisnici')
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .once(DatabaseEventType.value);
+    
+    setState(() {
+      isOwner = !event.snapshot.exists;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: _appBar(context),
       body: _body(context),
     );
@@ -106,7 +121,9 @@ class _Usluge2State extends State<Usluge2> {
                 MaterialPageRoute(builder: (context) => UslugaPage(
                   tipUsluge: widget.tipUsluge, 
                   usluga: u, 
-                  profilePictureUrl: profilePicturesUrls[u.id]!,))
+                  profilePictureUrl: profilePicturesUrls[u.id]!,
+                  isOwner: isOwner,
+                ))
               );
             },
             
