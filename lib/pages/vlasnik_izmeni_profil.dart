@@ -11,13 +11,13 @@ import 'package:uuid/uuid.dart';
 class VlasnikIzmeniProfil extends StatefulWidget {
   final Usluga2 usluga;
   final String profilePictureUrl;
-  final List<String> galerijaUrls;
+  final Map<String, String> galerijaSlike;
 
   const VlasnikIzmeniProfil({
     super.key,
     required this.usluga,
     required this.profilePictureUrl,
-    required this.galerijaUrls,
+    required this.galerijaSlike,
   });
 
   @override
@@ -35,10 +35,21 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
   final _gradController = TextEditingController();
   final _opisController = TextEditingController();
 
+  Map<String, String> galerijaSlike = {};
   List<File> noveGalerijaSlike = [];
+
+  String? selectedGalerijaImg;
+  File? selectedFileImg;
+  List<String> obrisaneSlike = [];
 
   @override void initState() {
     super.initState();
+
+    setState(() {
+      widget.galerijaSlike.forEach((key, value) { 
+        galerijaSlike[key] = value;
+      });
+    });
 
     _imeController.text = widget.usluga.ime;
     _gradController.text = widget.usluga.grad;
@@ -356,6 +367,13 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
       await storageRef.child(auth.currentUser!.uid).child(newImgId).putFile(img);
     }
 
+    for (String idObrisaneSlike in obrisaneSlike) {
+      await storageRef.child(auth.currentUser!.uid).child(idObrisaneSlike).delete();
+      setState(() {
+        
+      });
+    }
+
     // Usluga noviObjekat = Usluga(widget.usluga.id, widget.usluga.tipUsluge, nazivController.text, gradController.text, cenaController.text);
     // await uslugeRef.child(widget.usluga.tipUsluge).child(widget.usluga.id).set(noviObjekat.toJson());
     // widget.usluga.ime = _imeController.text;
@@ -380,32 +398,107 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
       mainAxisSpacing: 5,
       crossAxisSpacing: 5,
       children: [
-        ...widget.galerijaUrls.map((url) =>
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.network(
-                  url,
-                  fit: BoxFit.cover,
-                ),
+        
 
-                Container(
-                  color: const Color.fromARGB(100, 255, 255, 255),
-                )
-              ]
-            ) 
-          )
-        ),
+        ...galerijaSlike.entries.map((slika) {
+          String idSlike = slika.key;
+          String url = slika.value;
+
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedGalerijaImg = idSlike;
+                selectedFileImg = null;
+              });
+            },
+
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(
+                    url,
+                    fit: BoxFit.cover,
+                  ),
+
+                  if (selectedGalerijaImg == idSlike)
+                    Container(
+                      color: const Color.fromARGB(212, 163, 156, 156),
+                      child: Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedGalerijaImg = null;
+                                galerijaSlike.remove(idSlike);
+                                obrisaneSlike.add(idSlike);
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder()
+                            ),
+                            child: const Icon(
+                              CupertinoIcons.trash,
+                              color: Color.fromARGB(255, 179, 26, 15),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                ]
+              ) 
+            ),
+          );
+        }),
 
         ...noveGalerijaSlike.map((slika) => 
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.file(
-              slika,
-              fit: BoxFit.cover,
-            )
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedGalerijaImg = null;
+                selectedFileImg = slika;
+              });
+            },
+
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.file(
+                    slika,
+                    fit: BoxFit.cover,
+                  ),
+
+                  if (selectedFileImg == slika)
+                    Container(
+                      color: const Color.fromARGB(212, 163, 156, 156),
+                      child: Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedFileImg = null;
+                                noveGalerijaSlike.remove(slika);
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder()
+                            ),
+                            child: const Icon(
+                              CupertinoIcons.trash,
+                              color: Color.fromARGB(255, 179, 26, 15),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                ]
+              ) 
+            ),
           )
         ),
 

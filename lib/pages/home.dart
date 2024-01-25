@@ -28,7 +28,7 @@ class _HomeState extends State<Home> {
   bool? isOwner;
   Usluga2? vlasnikUsluga;
   String? profilePictureUrl;
-  List<String> galerijaUrls = [];
+  Map<String, String> galerijaUrls = {};
 
   TipUsluge tu = TipUsluge.prostori;
 
@@ -51,6 +51,7 @@ class _HomeState extends State<Home> {
 
       if (isOwner == true) {
         loadUslugaForOwner();
+        print('DEGAS');
       }
     });
   }
@@ -59,22 +60,22 @@ class _HomeState extends State<Home> {
     uslugeRef.child(uslugaToString(tu)).child(auth.currentUser!.uid).once().then((event) async {
         String url = await storageRef.child('${auth.currentUser!.uid}.jpg').getDownloadURL();
 
-        List<String> loadedGalerijaUrls = [];
+        Map<String, String> loadedGalerijaUrls = {};
 
         await storageRef.child(auth.currentUser!.uid).listAll().then((value) async {
           for (var item in value.items) {
             String galerijaUrl = await item.getDownloadURL();
-            loadedGalerijaUrls.add(galerijaUrl);
+            loadedGalerijaUrls[item.name] = galerijaUrl;
           }
         });
         
         setState(() {
           profilePictureUrl = url;
 
-          for (String g in loadedGalerijaUrls) {
-            galerijaUrls.add(g);
-          }
-          
+          loadedGalerijaUrls.forEach((key, value) { 
+            galerijaUrls[key] = value;
+          });
+
           vlasnikUsluga = Usluga2.fromSnapshot(event.snapshot);
         });
     });
@@ -110,7 +111,7 @@ class _HomeState extends State<Home> {
                     builder: (context) => VlasnikIzmeniProfil(
                       usluga: vlasnikUsluga!, 
                       profilePictureUrl: profilePictureUrl!,
-                      galerijaUrls: galerijaUrls,
+                      galerijaSlike: galerijaUrls,
                     )
                   )
                 );

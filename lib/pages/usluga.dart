@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
-
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:carousel_slider/carousel_controller.dart';
 class UslugaPage extends StatefulWidget {
   final Usluga2 usluga;
   final String profilePictureUrl;
@@ -25,16 +28,58 @@ class UslugaPage extends StatefulWidget {
 class _UslugaPageState extends State<UslugaPage> {
   final uslugeRef = FirebaseDatabase.instance.ref('Usluga');
   final korisniciRef = FirebaseDatabase.instance.ref('Korisnici');
+  final storageRef = FirebaseStorage.instance.ref();
+  final auth = FirebaseAuth.instance;
 
   bool showZvezdiceError = false;
   final _komentarController = TextEditingController();
 
   int ocenaKorisnika = 0;
+  bool saved=false;
+
+  int activeIndex = 0;
+  final controller = CarouselController();
+  List<String> urlImages=[];
+
+  void loadGalerija() async {
+    List<String> loadedGalerijaUrls= [];
+
+    await storageRef.child(auth.currentUser!.uid).listAll().then((value) async {
+      for (var item in value.items) {
+        String galerijaUrl = await item.getDownloadURL();
+        loadedGalerijaUrls.add(galerijaUrl);
+      }
+    });
+    
+    setState(() {
+      for(String urlSavedSlike in loadedGalerijaUrls){
+        urlImages.add(urlSavedSlike);
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    _setImePrezime();  
+    _setImePrezime();
+    loadGalerija();
+    CheckIfSaved();
+  }
+
+  void CheckIfSaved() {
+    korisniciRef.child(FirebaseAuth.instance.currentUser!.uid).child('Saved').once().then((event) async {
+
+      for(DataSnapshot savedElement in event.snapshot.children) { 
+        print(savedElement.key);  
+        print(widget.usluga.id);
+        if(savedElement.key==widget.usluga.id) {
+          setState(() {
+          saved=true;
+        });
+        break;
+        }
+      }
+    });
   }
 
   void _setImePrezime() async {
@@ -89,6 +134,28 @@ class _UslugaPageState extends State<UslugaPage> {
           color: Colors.black,
         )
       ),
+      actions: [
+        IconButton(
+          onPressed: () async{
+
+            if(!saved){
+              await korisniciRef.child(FirebaseAuth.instance.currentUser!.uid).child('Saved').child(widget.usluga.id).set('');
+            }
+            else{
+              await korisniciRef.child(FirebaseAuth.instance.currentUser!.uid).child('Saved').child(widget.usluga.id).remove();
+            }
+            print('Sacuvano');
+          
+            setState(() {
+              saved=!saved;
+            });
+          },
+          icon:  Icon(
+            saved ? Icons.bookmark : Icons.bookmark_add_outlined,
+            color: Colors.black,
+          ),
+        ),
+      ]
     );
   }
 
@@ -103,7 +170,10 @@ class _UslugaPageState extends State<UslugaPage> {
               _uslugaInfo(),
                 
               const SizedBox(height: 60,),
-          
+
+              galerijaSlajder(),
+              const SizedBox(height: 60,),
+
               _writeReview(),
 
               const SizedBox(height: 45,),
@@ -158,6 +228,41 @@ class _UslugaPageState extends State<UslugaPage> {
       ],
     );
   }
+  Widget galerijaSlajder(){
+    return Column(
+      children: [
+        CarouselSlider.builder(
+                    carouselController: controller,
+                    itemCount: urlImages.length,
+                    itemBuilder: (context, index, realIndex) {
+                      final urlImage = urlImages[index];
+                      return buildImage(urlImage, index);
+                    },
+                    options: CarouselOptions(
+                      height: 250,
+                      viewportFraction: 0.75,
+                        autoPlay: true,
+                        enableInfiniteScroll: false,
+                        autoPlayAnimationDuration: Duration(seconds: 2),
+                        onPageChanged: (index, reason) =>
+                            setState(() => activeIndex = index))),
+          SizedBox(height: 12),
+          buildIndicator()
+      ],
+    );
+  }
+  Widget buildImage(String urlImage, int index) =>
+    Container(child: Image.network(urlImage, fit: BoxFit.cover));
+
+  Widget buildIndicator() => AnimatedSmoothIndicator(
+        onDotClicked: animateToSlide,
+        effect: ExpandingDotsEffect(dotWidth: 15, activeDotColor: Colors.blue),
+        activeIndex: activeIndex,
+        count: urlImages.length,
+      );
+
+  void animateToSlide(int index) => controller.animateToPage(index);
+
 
   Widget _writeReview() {
     return Column(
