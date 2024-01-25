@@ -87,8 +87,7 @@ class _NalogPageState extends State<Nalog> {
                           builder: (context) => const Vlasnik()
                         )
                       );
-                    }, 
-
+                    },
                     child: const Text('Uredi profil')
                   )
               ],

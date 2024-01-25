@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:firebase_database/firebase_database.dart';
@@ -123,6 +124,7 @@ class Usluga2 {
   String ime= '';
   String grad = '';
   String opis = '';
+  String brojTelefona = '';
 
   List<Ocena> ocene = [];
 
@@ -131,6 +133,7 @@ class Usluga2 {
     ime = snapshot.child('Ime').value.toString();
     grad = snapshot.child('Grad').value.toString();
     opis = snapshot.child('Description').value.toString();
+    brojTelefona = snapshot.child('BrojTelefona').value.toString();
 
     for (DataSnapshot ocenaSnapshot in snapshot.child('Ocene').children) {
       ocene.add(Ocena.fromSnapshot(ocenaSnapshot));
@@ -142,6 +145,26 @@ class Usluga2 {
     "Grad": grad,
     "Description": opis,
   };
+}
+
+class Rezervacija {
+  String id = '';
+  String imePrezime = '';
+  String datum = '';
+  String vreme = '';
+  String brojTelefona = '';
+  Int status = 0 as Int;
+
+  List<Rezervacija> rezervacije = [];
+
+  Rezervacija(DataSnapshot snapshot) {
+    id = snapshot.key!;
+    datum = snapshot.child('Datum').value.toString();
+    vreme = snapshot.child('Vreme').value.toString();
+    brojTelefona = snapshot.child('Broj Telefona').value.toString();
+    imePrezime = snapshot.child('ImePrezime').value.toString();
+    status = snapshot.child('Status').value as Int;
+  }
 }
 
 class Ocena {

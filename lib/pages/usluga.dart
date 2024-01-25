@@ -31,6 +31,13 @@ class _UslugaPageState extends State<UslugaPage> {
   final storageRef = FirebaseStorage.instance.ref();
   final auth = FirebaseAuth.instance;
 
+  final _imePrezimeController = TextEditingController();
+  final _brojTelefonaController = TextEditingController();
+  final _datumController = TextEditingController();
+  final _vremeController = TextEditingController();
+  final _opisController = TextEditingController();
+
+
   bool showZvezdiceError = false;
   final _komentarController = TextEditingController();
 
@@ -225,6 +232,145 @@ class _UslugaPageState extends State<UslugaPage> {
             fontSize: 16
           ),
         ),
+        ElevatedButton(
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Rezervacija'),
+                      content: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Form(
+                            child: Column(
+                              children: <Widget>[
+                                TextFormField(
+                                  controller: _imePrezimeController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Ime i prezime',
+                                      border: OutlineInputBorder()),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Unesite ime i prezime';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                TextFormField(
+                                  controller: _brojTelefonaController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Broj telefona',
+                                      border: OutlineInputBorder()),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Unesite broj telefona';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                TextFormField(
+                                  controller: _datumController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Datum',
+                                      border: OutlineInputBorder()),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Unesite datum';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                TextFormField(
+                                  controller: _vremeController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Vreme',
+                                      border: OutlineInputBorder()),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Unesite vreme';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                TextFormField(
+                                  controller: _opisController,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Opis',
+                                      border: OutlineInputBorder()),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Unesite opis';
+                                    }
+                                    return null;
+                                  },
+                                )
+                              ],
+                            )),
+                      ),
+                      actions: [
+                        ElevatedButton(
+                            onPressed: () async {
+                              await uslugeRef
+                                  .child(uslugaToString(widget.tipUsluge))
+                                  .child(widget.usluga.id)
+                                  .child('Rezervacije')
+                                  .child(FirebaseAuth.instance.currentUser!.uid)
+                                  .set({
+                                'ImePrezime': _imePrezimeController.text,
+                                'BrojTelefona': _brojTelefonaController.text,
+                                'Datum': _datumController.text,
+                                'Vreme': _vremeController.text,
+                                'Opis': _opisController.text,
+                                'Status': 1,
+                              });
+                              await korisniciRef
+                                  .child(FirebaseAuth.instance.currentUser!.uid)
+                                  .child('Rezervacije')
+                                  .child(widget.usluga.id)
+                                  .set({
+                                'Ime': widget.usluga.ime,
+                                'BrojTelefona': widget.usluga.brojTelefona,
+                                'Datum': _datumController.text,
+                                'Vreme': _vremeController.text,
+                                'Opis': _opisController.text,
+                                'Status': 1,
+                              });
+                              Navigator.of(context).pop();
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Rezervacija'),
+                                      content: const Text(
+                                          'Uspešno ste rezervisali uslugu'),
+                                      actions: [
+                                        ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('Ok'))
+                                      ],
+                                    );
+                                  });
+                            },
+                            child: const Text('Rezerviši'))
+                      ],
+                    );
+                  });
+            },
+            child: const Text('Rezerviši'))
       ],
     );
   }
@@ -243,10 +389,10 @@ class _UslugaPageState extends State<UslugaPage> {
                       viewportFraction: 0.75,
                         autoPlay: true,
                         enableInfiniteScroll: false,
-                        autoPlayAnimationDuration: Duration(seconds: 2),
+                        autoPlayAnimationDuration: const Duration(seconds: 2),
                         onPageChanged: (index, reason) =>
                             setState(() => activeIndex = index))),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           buildIndicator()
       ],
     );
@@ -256,7 +402,7 @@ class _UslugaPageState extends State<UslugaPage> {
 
   Widget buildIndicator() => AnimatedSmoothIndicator(
         onDotClicked: animateToSlide,
-        effect: ExpandingDotsEffect(dotWidth: 15, activeDotColor: Colors.blue),
+        effect: const ExpandingDotsEffect(dotWidth: 15, activeDotColor: Colors.blue),
         activeIndex: activeIndex,
         count: urlImages.length,
       );

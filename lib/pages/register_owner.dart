@@ -178,12 +178,13 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
 
       await storageRef.child('$id.jpg').putFile(pickedProfilePicture!);
 
-      FirebaseDatabase.instance.ref('Usluga').child(inputTipUsluge).child(
+      FirebaseDatabase.instance.ref('Usluga').child(
           FirebaseAuth.instance.currentUser!.uid).set({
         'Ime': _nameController.text,
         'Grad': inputImeGrada,
         'Email': email,
         'Description': _descriptionController.text,
+        'Usluga': inputTipUsluge,
       });
 
       if (context.mounted) {
