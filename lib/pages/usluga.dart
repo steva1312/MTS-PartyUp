@@ -43,6 +43,8 @@ class _UslugaPageState extends State<UslugaPage> {
     }
 
     setState(() {
+      if (FirebaseAuth.instance.currentUser == null) return;
+
       String id = FirebaseAuth.instance.currentUser!.uid;
 
       int index = widget.usluga.ocene.indexWhere((o) => o.idKorisnika == id);
@@ -377,7 +379,7 @@ class _UslugaPageState extends State<UslugaPage> {
               ],
             ),
 
-            if (ocena.idKorisnika == FirebaseAuth.instance.currentUser!.uid)
+            if (FirebaseAuth.instance.currentUser != null && ocena.idKorisnika == FirebaseAuth.instance.currentUser!.uid)
               Padding(
                 padding: const EdgeInsets.only(left: 5),
                 child: GestureDetector(

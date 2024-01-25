@@ -1,19 +1,23 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
+import 'package:uuid/uuid.dart';
 
 class VlasnikIzmeniProfil extends StatefulWidget {
-  final Usluga usluga;
+  final Usluga2 usluga;
   final String profilePictureUrl;
+  final List<String> galerijaUrls;
 
   const VlasnikIzmeniProfil({
     super.key,
     required this.usluga,
-    required this.profilePictureUrl
+    required this.profilePictureUrl,
+    required this.galerijaUrls,
   });
 
   @override
@@ -21,21 +25,24 @@ class VlasnikIzmeniProfil extends StatefulWidget {
 }
 
 class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
-  final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
+  final uslugeRef = FirebaseDatabase.instance.ref('Usluga');
   final storageRef = FirebaseStorage.instance.ref();
+  final auth = FirebaseAuth.instance;
 
   File? newProfilePicture;
 
-  final nazivController = TextEditingController();
-  final gradController = TextEditingController();
-  final cenaController = TextEditingController();
+  final _imeController = TextEditingController();
+  final _gradController = TextEditingController();
+  final _opisController = TextEditingController();
+
+  List<File> noveGalerijaSlike = [];
 
   @override void initState() {
     super.initState();
 
-    nazivController.text = widget.usluga.naziv;
-    gradController.text = widget.usluga.grad;
-    cenaController.text = widget.usluga.cena;
+    _imeController.text = widget.usluga.ime;
+    _gradController.text = widget.usluga.grad;
+    _opisController.text = widget.usluga.opis;
   }
 
   @override
@@ -93,26 +100,32 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
           _text('Naziv usluge'),
           const SizedBox(height: 5,),
           
-          _textFormField(nazivController),
+          _textFormField(_imeController),
           const SizedBox(height: 30,),
           
           _text('Grad'),
           const SizedBox(height: 5,),
           
-          _textFormField(gradController),
+          _textFormField(_gradController),
           const SizedBox(height: 30,),
 
-          _text('Cena'),
+          _text('Opis'),
           const SizedBox(height: 5,),
           
-          _textFormField(cenaController),
+          _textFormField(_opisController, expanded: true),
+          const SizedBox(height: 30,),
+
+          _text('Galerija'),
+          const SizedBox(height: 5,),
+          
+          _galerija(),
           const SizedBox(height: 30,),
         ],
       ),
     );
   }
 
-   _text(String text) {
+  Widget _text(String text) {
     return Text(
       text,
       style: const TextStyle(
@@ -186,18 +199,19 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
     );
   }
 
-  TextFormField _textFormField(TextEditingController controller) {
+  TextFormField _textFormField(TextEditingController controller, { bool expanded = false }) {
     return TextFormField(
       controller: controller,
       style: const TextStyle(
         fontSize: 16
       ),
+      maxLines: expanded ? 4 : 1,
       cursorColor: Colors.black,
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
         filled: false,
         fillColor: const Color(0xFFededed),
-        suffixIcon: const Icon(
+        suffix: const Icon(
           Icons.edit
         ),
         border: OutlineInputBorder(
@@ -337,10 +351,88 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
       await storageRef.child('${widget.usluga.id}.jpg').putFile(newProfilePicture!);
     }
 
-    Usluga noviObjekat = Usluga(widget.usluga.id, widget.usluga.tipUsluge, nazivController.text, gradController.text, cenaController.text);
-    await uslugeRef.child(widget.usluga.tipUsluge).child(widget.usluga.id).set(noviObjekat.toJson());
+    for (File img in noveGalerijaSlike) {
+      String newImgId = const Uuid().v4();
+      await storageRef.child(auth.currentUser!.uid).child(newImgId).putFile(img);
+    }
+
+    // Usluga noviObjekat = Usluga(widget.usluga.id, widget.usluga.tipUsluge, nazivController.text, gradController.text, cenaController.text);
+    // await uslugeRef.child(widget.usluga.tipUsluge).child(widget.usluga.id).set(noviObjekat.toJson());
+    // widget.usluga.ime = _imeController.text;
+    // widget.usluga.grad = _gradController.text;
+    // widget.usluga.opis = _opisController.text;
+
+    //TODO
+    DatabaseReference valsnikUslugaRef =  uslugeRef.child(uslugaToString(TipUsluge.prostori)).child(widget.usluga.id);
+    await valsnikUslugaRef.child('Ime').set(_imeController.text);
+    await valsnikUslugaRef.child('Grad').set(_gradController.text);
+    await valsnikUslugaRef.child('Description').set(_opisController.text);
 
     Navigator.pop(context);
     Navigator.pop(context);
+  }
+
+  Widget _galerija() {
+    return GridView.count(
+      crossAxisCount: 3,
+      physics: const NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+      shrinkWrap: true,
+      mainAxisSpacing: 5,
+      crossAxisSpacing: 5,
+      children: [
+        ...widget.galerijaUrls.map((url) =>
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.network(
+                  url,
+                  fit: BoxFit.cover,
+                ),
+
+                Container(
+                  color: const Color.fromARGB(100, 255, 255, 255),
+                )
+              ]
+            ) 
+          )
+        ),
+
+        ...noveGalerijaSlike.map((slika) => 
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.file(
+              slika,
+              fit: BoxFit.cover,
+            )
+          )
+        ),
+
+        ElevatedButton(
+          onPressed: () async {
+            final pickedFile = await pickImageFromGalleryAndCrop();
+        
+            if (pickedFile != null) {
+              setState(() {
+                noveGalerijaSlike.add(pickedFile);
+              });
+            }
+          },
+          
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            backgroundColor: const Color.fromARGB(255, 238, 238, 238),
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.all(10),
+            shape: RoundedRectangleBorder(
+               borderRadius: BorderRadius.circular(8)
+            )
+          ),
+        
+          child: const Icon(CupertinoIcons.add, size: 40),
+        )
+      ]
+    );
   }
 }

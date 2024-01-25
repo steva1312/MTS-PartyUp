@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:mts_partyup/pages/vlasnik.dart';
 
 class Nalog extends StatefulWidget {
   const Nalog({super.key});
@@ -22,6 +23,8 @@ class _NalogPageState extends State<Nalog> {
   }
 
   void setIsOwner() async {
+    if (FirebaseAuth.instance.currentUser == null) return;
+    
     final event = await FirebaseDatabase.instance
         .ref('Korisnici')
         .child(FirebaseAuth.instance.currentUser!.uid)
@@ -74,7 +77,20 @@ class _NalogPageState extends State<Nalog> {
                 else if (isOwner == true)
                   const Text('Vlasnik')
                 else 
-                  const Text('Korisnik')
+                  const Text('Korisnik'),
+
+                if (isOwner == true) 
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const Vlasnik()
+                        )
+                      );
+                    }, 
+
+                    child: const Text('Uredi profil')
+                  )
               ],
             ))
       ]),

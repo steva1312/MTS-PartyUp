@@ -42,7 +42,7 @@ class _Usluge2State extends State<Usluge2> {
       List<Usluga2> ucitaneUsluge = [];
       
       for(DataSnapshot uslugaSnapshot in event.snapshot.children) {
-        Usluga2 u = Usluga2(uslugaSnapshot);
+        Usluga2 u = Usluga2.fromSnapshot(uslugaSnapshot);
         ucitaneUsluge.add(u);
 
         final profilePictureUrl = await storageRef.child('${u.id}.jpg').getDownloadURL();

@@ -12,6 +12,8 @@ class Vlasnik extends StatefulWidget {
   State<Vlasnik> createState() => _VlasnikState();
 }
 
+//  NJESRA FAJL NE DIRAJ
+
 class _VlasnikState extends State<Vlasnik> {
   final String id = 'b7c440bf-61ee-4624-a507-51796c8441c1';
   final String tipUsluge = 'Fotografi';
@@ -19,7 +21,7 @@ class _VlasnikState extends State<Vlasnik> {
   final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
   final storageRef = FirebaseStorage.instance.ref();
 
-  Usluga? usluga;
+  Usluga2? usluga;
   String? profilePictureUrl;
 
   Map<String, dynamic> jsonDatumi = {};
@@ -27,14 +29,10 @@ class _VlasnikState extends State<Vlasnik> {
   @override void initState() {
     super.initState();
     uslugeRef.child(tipUsluge).child(id).once().then((event) async {
-      String naziv = event.snapshot.child('naziv').value.toString();
-      String grad = event.snapshot.child('grad').value.toString();
-      String cena = event.snapshot.child('cena').value.toString();
-
       final url = await storageRef.child('$id.jpg').getDownloadURL();
 
       setState(() {
-        usluga = Usluga(id, tipUsluge, naziv, grad, cena);
+        usluga = Usluga2.fromSnapshot(event.snapshot);
 
         profilePictureUrl = url;
         
@@ -53,14 +51,14 @@ class _VlasnikState extends State<Vlasnik> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: Text(
-          usluga != null ? usluga!.naziv : '',
-          style: const TextStyle(
-              color: Colors.black, fontWeight: 
-              FontWeight.bold, 
-              fontSize: 20
-            ),
-        ),
+        // title: Text(
+        //   usluga != null ? usluga!.naziv : '',
+        //   style: const TextStyle(
+        //       color: Colors.black, fontWeight: 
+        //       FontWeight.bold, 
+        //       fontSize: 20
+        //     ),
+        // ),
         elevation: 0.0,
       ),
 
@@ -68,21 +66,11 @@ class _VlasnikState extends State<Vlasnik> {
         children: [
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => VlasnikIzmeniProfil(usluga: usluga!, profilePictureUrl: profilePictureUrl!,))
-              );
+              // Navigator.of(context).push(
+              //   MaterialPageRoute(builder: (context) => VlasnikIzmeniProfil(usluga: usluga!, profilePictureUrl: profilePictureUrl!, ))
+              // );
             },
             child: const Text('Izmeni profil'),
-          ),
-
-          ElevatedButton(
-            onPressed: () {
-              print(jsonDatumi.toString());
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => Kalendar(usluga: usluga!, jsonDatumi: jsonDatumi,))
-              );
-            },
-            child: const Text('Zakazi datum'),
           ),
         ]
       ),

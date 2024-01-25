@@ -126,7 +126,7 @@ class Usluga2 {
 
   List<Ocena> ocene = [];
 
-  Usluga2(DataSnapshot snapshot) {
+  Usluga2.fromSnapshot(DataSnapshot snapshot) {
     id = snapshot.key!;
     ime = snapshot.child('Ime').value.toString();
     grad = snapshot.child('Grad').value.toString();
