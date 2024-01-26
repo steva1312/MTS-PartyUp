@@ -29,6 +29,7 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _brojTelefonaController = TextEditingController();
   String inputTipUsluge = uslugaToString(TipUsluge.values[0]);
   String inputImeGrada = gradovi[0];
   File? pickedProfilePicture;
@@ -109,6 +110,17 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
                   },
                 ),
 
+                TextFormField(
+                  controller: _brojTelefonaController,
+                  decoration: const InputDecoration(labelText: 'Broj telefona'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Unesite broj telefona';
+                    }
+                    return null;
+                  },
+                ),
+
                 SizedBox(
                   height: 150,
                   child: TextFormField(
@@ -178,13 +190,14 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
 
       await storageRef.child('$id.jpg').putFile(pickedProfilePicture!);
 
-      FirebaseDatabase.instance.ref('Usluga').child(
+      FirebaseDatabase.instance.ref('Usluge').child(
           FirebaseAuth.instance.currentUser!.uid).set({
         'Ime': _nameController.text,
         'Grad': inputImeGrada,
         'Email': email,
-        'Description': _descriptionController.text,
-        'Usluga': inputTipUsluge,
+        'Opis': _descriptionController.text,
+        'TipUsluge': inputTipUsluge,
+        'BrojTelefona': '',
       });
 
       if (context.mounted) {

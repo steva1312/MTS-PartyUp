@@ -18,13 +18,13 @@ class Usluge2 extends StatefulWidget {
 }
 
 class _Usluge2State extends State<Usluge2> {
-  final objekitRef = FirebaseDatabase.instance.ref('Usluga');
+  final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
   final storageRef = FirebaseStorage.instance.ref();
   bool? isOwner;
 
   String text = 'Usluge';
   List<Usluga2> usluge = [];
-  Map<String, String> profilePicturesUrls = {};  
+  Map<String, String> profilePicturesUrls = {};
 
   @override
   void initState() {
@@ -34,14 +34,14 @@ class _Usluge2State extends State<Usluge2> {
   }
 
   void getDataFromDB() {
-    objekitRef.child(uslugaToString(widget.tipUsluge)).once().then((event) async {
-      setState(() {
-        text = event.snapshot.value.toString();
-      });
+    uslugeRef.once().then((event) async {
 
       List<Usluga2> ucitaneUsluge = [];
-      
+
       for(DataSnapshot uslugaSnapshot in event.snapshot.children) {
+        print(uslugaSnapshot.child('TipUsluge').value.toString());
+        if (uslugaSnapshot.child('TipUsluge').value.toString() != uslugaToString(widget.tipUsluge)) continue;
+
         Usluga2 u = Usluga2.fromSnapshot(uslugaSnapshot);
         ucitaneUsluge.add(u);
 
@@ -119,7 +119,6 @@ class _Usluge2State extends State<Usluge2> {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => UslugaPage(
-                  tipUsluge: widget.tipUsluge, 
                   usluga: u, 
                   profilePictureUrl: profilePicturesUrls[u.id]!,
                   isOwner: isOwner,

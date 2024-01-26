@@ -3,12 +3,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mts_partyup/data.dart';
-import 'package:mts_partyup/pages/add_objekat.dart';
 import 'package:mts_partyup/pages/bookmark.dart';
 import 'package:mts_partyup/pages/login.dart';
 import 'package:mts_partyup/pages/nalog.dart';
-import 'package:mts_partyup/pages/register.dart';
-import 'package:mts_partyup/pages/usluge.dart';
 import 'package:mts_partyup/pages/usluge2.dart';
 import 'package:mts_partyup/pages/vlasnik_izmeni_profil.dart';
 
@@ -20,7 +17,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final uslugeRef = FirebaseDatabase.instance.ref('Usluga');
+  final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
   final storageRef = FirebaseStorage.instance.ref();
   final auth = FirebaseAuth.instance;
   
@@ -29,8 +26,6 @@ class _HomeState extends State<Home> {
   Usluga2? vlasnikUsluga;
   String? profilePictureUrl;
   Map<String, String> galerijaUrls = {};
-
-  TipUsluge tu = TipUsluge.prostori;
 
   @override
   void initState() {
@@ -41,23 +36,21 @@ class _HomeState extends State<Home> {
   void checkIfOwnerAndLoadUsluga() async {
     if (auth.currentUser == null) return;
 
-    final event = await FirebaseDatabase.instance
-        .ref('Korisnici')
-        .child(FirebaseAuth.instance.currentUser!.uid)
+    final event = await uslugeRef
+        .child(auth.currentUser!.uid)
         .once(DatabaseEventType.value);
     
     setState(() {
-      isOwner = !event.snapshot.exists;
+      isOwner = event.snapshot.exists;
 
       if (isOwner == true) {
         loadUslugaForOwner();
-        print('DEGAS');
       }
     });
   }
 
   void loadUslugaForOwner() {
-    uslugeRef.child(uslugaToString(tu)).child(auth.currentUser!.uid).once().then((event) async {
+    uslugeRef.child(auth.currentUser!.uid).once().then((event) async {
         String url = await storageRef.child('${auth.currentUser!.uid}.jpg').getDownloadURL();
 
         Map<String, String> loadedGalerijaUrls = {};
@@ -302,23 +295,4 @@ AppBar appBar(BuildContext context) {
           ),
         ),
       ]);
-}
-
-/*Widget body(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: TipUsluge.values.map((o) => baton(context, o)).toList(),
-      ),
-    );
-  }*/
-
-ElevatedButton baton(BuildContext context, TipUsluge tipUsluge) {
-  return ElevatedButton(
-      style: ElevatedButton.styleFrom(fixedSize: const Size.fromWidth(150)),
-      onPressed: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => Usluge2(tipUsluge: tipUsluge)));
-      },
-      child: Text(uslugaToString(tipUsluge)));
 }

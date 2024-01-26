@@ -121,6 +121,7 @@ class Usluga {
 
 class Usluga2 {
   String id = '';
+  TipUsluge tipUsluge = TipUsluge.prostori;
   String ime= '';
   String grad = '';
   String opis = '';
@@ -130,9 +131,10 @@ class Usluga2 {
 
   Usluga2.fromSnapshot(DataSnapshot snapshot) {
     id = snapshot.key!;
+    tipUsluge = stringToUsluga(snapshot.child('TipUsluge').value.toString());
     ime = snapshot.child('Ime').value.toString();
     grad = snapshot.child('Grad').value.toString();
-    opis = snapshot.child('Description').value.toString();
+    opis = snapshot.child('Opis').value.toString();
     brojTelefona = snapshot.child('BrojTelefona').value.toString();
 
     for (DataSnapshot ocenaSnapshot in snapshot.child('Ocene').children) {
@@ -143,7 +145,9 @@ class Usluga2 {
   Map<String, dynamic> toJson() => {
     "Ime": ime,
     "Grad": grad,
-    "Description": opis,
+    "Opis": opis,
+    "BrojTelefona": brojTelefona,
+    "TipUsluge": uslugaToString(tipUsluge),
   };
 }
 
@@ -224,6 +228,7 @@ Future<File?> pickImageFromGalleryAndCrop() async {
       ),
       IOSUiSettings(
         title: 'Podesi sliku',
+        
       )
     ]
   );

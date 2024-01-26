@@ -374,17 +374,11 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
       });
     }
 
-    // Usluga noviObjekat = Usluga(widget.usluga.id, widget.usluga.tipUsluge, nazivController.text, gradController.text, cenaController.text);
-    // await uslugeRef.child(widget.usluga.tipUsluge).child(widget.usluga.id).set(noviObjekat.toJson());
-    // widget.usluga.ime = _imeController.text;
-    // widget.usluga.grad = _gradController.text;
-    // widget.usluga.opis = _opisController.text;
-
     //TODO
-    DatabaseReference valsnikUslugaRef =  uslugeRef.child(uslugaToString(TipUsluge.prostori)).child(widget.usluga.id);
+    DatabaseReference valsnikUslugaRef =  uslugeRef.child(widget.usluga.id);
     await valsnikUslugaRef.child('Ime').set(_imeController.text);
     await valsnikUslugaRef.child('Grad').set(_gradController.text);
-    await valsnikUslugaRef.child('Description').set(_opisController.text);
+    await valsnikUslugaRef.child('Opis').set(_opisController.text);
 
     Navigator.pop(context);
     Navigator.pop(context);
@@ -393,7 +387,7 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
   Widget _galerija() {
     return GridView.count(
       crossAxisCount: 3,
-      physics: const NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+      physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       mainAxisSpacing: 5,
       crossAxisSpacing: 5,
