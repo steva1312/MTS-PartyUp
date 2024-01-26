@@ -20,9 +20,11 @@ class _VlasnikState extends State<Vlasnik> {
 
   final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
   final storageRef = FirebaseStorage.instance.ref();
+  final rezervacijeRef = FirebaseDatabase.instance.ref('Rezervacije');
 
   Usluga2? usluga;
   String? profilePictureUrl;
+  DataSnapshot? rezervacijeSnapshot;
 
   Map<String, dynamic> jsonDatumi = {};
 
@@ -31,8 +33,15 @@ class _VlasnikState extends State<Vlasnik> {
     uslugeRef.child(tipUsluge).child(id).once().then((event) async {
       final url = await storageRef.child('$id.jpg').getDownloadURL();
 
+      rezervacijeRef.once().then((event) {
+        setState(() {
+          rezervacijeSnapshot = event.snapshot;
+        });
+      });
+
+
       setState(() {
-        usluga = Usluga2.fromSnapshot(event.snapshot);
+        usluga = Usluga2.fromSnapshot(event.snapshot, rezervacijeSnapshot!);
 
         profilePictureUrl = url;
         
@@ -40,6 +49,8 @@ class _VlasnikState extends State<Vlasnik> {
           jsonDatumi[datumSnapshot.key!] = '';
         }
       });
+
+
     });
   }
 

@@ -20,6 +20,8 @@ class Usluge2 extends StatefulWidget {
 class _Usluge2State extends State<Usluge2> {
   final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
   final storageRef = FirebaseStorage.instance.ref();
+  final rezervacijeRef = FirebaseDatabase.instance.ref('Rezervacije');
+  DataSnapshot? rezervacijeSnapshot;
   bool? isOwner;
 
   String text = 'Usluge';
@@ -34,15 +36,20 @@ class _Usluge2State extends State<Usluge2> {
   }
 
   void getDataFromDB() {
+    rezervacijeRef.once().then((event) {
+      setState(() {
+        rezervacijeSnapshot = event.snapshot;
+      });
+    });
+
     uslugeRef.once().then((event) async {
 
       List<Usluga2> ucitaneUsluge = [];
 
       for(DataSnapshot uslugaSnapshot in event.snapshot.children) {
-        print(uslugaSnapshot.child('TipUsluge').value.toString());
         if (uslugaSnapshot.child('TipUsluge').value.toString() != uslugaToString(widget.tipUsluge)) continue;
 
-        Usluga2 u = Usluga2.fromSnapshot(uslugaSnapshot);
+        Usluga2 u = Usluga2.fromSnapshot(uslugaSnapshot, rezervacijeSnapshot!);
         ucitaneUsluge.add(u);
 
         final profilePictureUrl = await storageRef.child('${u.id}.jpg').getDownloadURL();

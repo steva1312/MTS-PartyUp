@@ -6,6 +6,7 @@ import 'package:mts_partyup/data.dart';
 import 'package:mts_partyup/pages/bookmark.dart';
 import 'package:mts_partyup/pages/login.dart';
 import 'package:mts_partyup/pages/nalog.dart';
+import 'package:mts_partyup/pages/rezervacije_vlasnik.dart';
 import 'package:mts_partyup/pages/usluge2.dart';
 import 'package:mts_partyup/pages/vlasnik_izmeni_profil.dart';
 
@@ -18,8 +19,11 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
+  final rezervacijeRef = FirebaseDatabase.instance.ref('Rezervacije');
   final storageRef = FirebaseStorage.instance.ref();
   final auth = FirebaseAuth.instance;
+
+  DataSnapshot? rezervacijeSnapshot;
   
   //promenljive ako je vlasnik logovan
   bool? isOwner;
@@ -49,8 +53,15 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void loadUslugaForOwner() {
-    uslugeRef.child(auth.currentUser!.uid).once().then((event) async {
+  void loadUslugaForOwner() async {
+
+    await rezervacijeRef.once().then((event) async {
+      setState(() {
+        rezervacijeSnapshot = event.snapshot;
+      });
+    });
+
+    await uslugeRef.child(auth.currentUser!.uid).once().then((event) async {
         String url = await storageRef.child('${auth.currentUser!.uid}.jpg').getDownloadURL();
 
         Map<String, String> loadedGalerijaUrls = {};
@@ -61,6 +72,12 @@ class _HomeState extends State<Home> {
             loadedGalerijaUrls[item.name] = galerijaUrl;
           }
         });
+
+        rezervacijeRef.once().then((event) {
+          setState(() {
+            rezervacijeSnapshot = event.snapshot;
+          });
+        });
         
         setState(() {
           profilePictureUrl = url;
@@ -69,7 +86,7 @@ class _HomeState extends State<Home> {
             galerijaUrls[key] = value;
           });
 
-          vlasnikUsluga = Usluga2.fromSnapshot(event.snapshot);
+          vlasnikUsluga = Usluga2.fromSnapshot(event.snapshot, rezervacijeSnapshot!);
         });
     });
   }
@@ -256,43 +273,55 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-}
-
-AppBar appBar(BuildContext context) {
-  return AppBar(
-      backgroundColor: Colors.white,
-      centerTitle: true,
-      title: const Text(
-        'PartyUp',
-        style: TextStyle(
-            color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
-      ),
-      elevation: 0.0,
-      leading: IconButton(
-        onPressed: () {
-          if (FirebaseAuth.instance.currentUser == null) {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => const Login()));
-          } else {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => const Nalog()));
-          }
-        },
-        icon: const Icon(
-          Icons.person,
-          color: Colors.black,
+  AppBar appBar(BuildContext context) {
+    return AppBar(
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        title: const Text(
+          'PartyUp',
+          style: TextStyle(
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
         ),
-      ),
-      actions: [
-        IconButton(
+        elevation: 0.0,
+        leading: IconButton(
           onPressed: () {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const Bookmark()));
+            if (FirebaseAuth.instance.currentUser == null) {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => const Login()));
+            } else {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => const Nalog()));
+            }
           },
           icon: const Icon(
-            Icons.bookmark,
+            Icons.person,
             color: Colors.black,
           ),
         ),
-      ]);
+        actions: [
+          IconButton(
+            onPressed: () {
+              if (isOwner!) {
+                Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => RezervacijeVlasnik(usluga: vlasnikUsluga!,)
+                    )
+                );
+              } else {
+                Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => const Bookmark()
+                    )
+                );
+
+              }
+            },
+            icon: Icon(
+              isOwner == true ? Icons.next_plan_outlined : Icons.bookmark,
+              color: Colors.black,
+            ),
+          ),
+        ]);
+  }
 }
+
