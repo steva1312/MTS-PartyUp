@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:firebase_database/firebase_database.dart';
@@ -128,38 +127,45 @@ class Usluga2 {
   String brojTelefona = '';
 
   List<Ocena> ocene = [];
+  List<Rezervacija> rezervacije = [];
 
-  Usluga2.fromSnapshot(DataSnapshot snapshot) {
-    id = snapshot.key!;
-    tipUsluge = stringToUsluga(snapshot.child('TipUsluge').value.toString());
-    ime = snapshot.child('Ime').value.toString();
-    grad = snapshot.child('Grad').value.toString();
-    opis = snapshot.child('Opis').value.toString();
-    brojTelefona = snapshot.child('BrojTelefona').value.toString();
+  Usluga2.fromSnapshot(DataSnapshot uslugaSnapshot, DataSnapshot rezervacijeSnapshot) {
+    id = uslugaSnapshot.key!;
+    tipUsluge = stringToUsluga(uslugaSnapshot.child('TipUsluge').value.toString());
+    ime = uslugaSnapshot.child('Ime').value.toString();
+    grad = uslugaSnapshot.child('Grad').value.toString();
+    opis = uslugaSnapshot.child('Opis').value.toString();
+    brojTelefona = uslugaSnapshot.child('BrojTelefona').value.toString();
 
-    for (DataSnapshot ocenaSnapshot in snapshot.child('Ocene').children) {
+    for (DataSnapshot ocenaSnapshot in uslugaSnapshot.child('Ocene').children) {
       ocene.add(Ocena.fromSnapshot(ocenaSnapshot));
+    }
+
+    for (DataSnapshot rezervacijaSnapshot in rezervacijeSnapshot.children) {
+      print(rezervacijaSnapshot.child('IdUsluge').value.toString());
+      if (id != rezervacijaSnapshot.child('IdUsluge').value.toString()) continue;
+      rezervacije.add(Rezervacija.fromSnapshot(rezervacijaSnapshot));
     }
   }
 }
 
 class Rezervacija {
   String id = '';
-  String imePrezime = '';
+  String idKorisnika = '';
+  String idUsluge = '';
   String datum = '';
   String vreme = '';
-  String brojTelefona = '';
-  Int status = 0 as Int;
+  String opis = '';
+  int status = 0;
 
-  List<Rezervacija> rezervacije = [];
-
-  Rezervacija(DataSnapshot snapshot) {
+  Rezervacija.fromSnapshot(DataSnapshot snapshot) {
     id = snapshot.key!;
     datum = snapshot.child('Datum').value.toString();
     vreme = snapshot.child('Vreme').value.toString();
-    brojTelefona = snapshot.child('Broj Telefona').value.toString();
-    imePrezime = snapshot.child('ImePrezime').value.toString();
-    status = snapshot.child('Status').value as Int;
+    idKorisnika = snapshot.child('IdKorisnika').value.toString();
+    idUsluge = snapshot.child('IdUsluge').value.toString();
+    opis = snapshot.child('Opis').value.toString();
+    status = 1;
   }
 }
 
@@ -179,6 +185,7 @@ class Ocena {
     komentar = snapshot.child('Komentar').value.toString();
     //imePrezime se odredjuje u usluga.dart zbog optimizacije
   }
+
 
   Future<void> postaviImePrezime(DatabaseReference korisniciRef) async {
     await korisniciRef.child(idKorisnika).once().then((event) {
@@ -220,7 +227,7 @@ Future<File?> pickImageFromGalleryAndCrop() async {
       ),
       IOSUiSettings(
         title: 'Podesi sliku',
-        
+
       )
     ]
   );

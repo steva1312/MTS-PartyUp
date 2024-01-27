@@ -25,6 +25,7 @@ class _RegisterPageState extends State<Register> {
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
+  final _brojTelefonaController = TextEditingController();
   bool _isOwner = false;
 
   AppBar appBar(BuildContext context) {
@@ -122,6 +123,16 @@ class _RegisterPageState extends State<Register> {
                     return null;
                   },
                 ),
+                TextFormField(
+                  controller: _brojTelefonaController,
+                  decoration: const InputDecoration(labelText: 'Broj telefona'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Unesite broj telefona';
+                    }
+                    return null;
+                  },
+                ),
                 CheckboxListTile(
                   title: const Text('Da li ste pružalac usluga?'),
                   value: _isOwner,
@@ -175,6 +186,7 @@ class _RegisterPageState extends State<Register> {
           'Ime': _nameController.text,
           'Prezime': _surnameController.text,
           'Email': _emailController.text,
+          'BrojTelefona': _brojTelefonaController.text,
       });
       if (context.mounted) {
         Navigator.of(context).pushReplacement(
