@@ -10,10 +10,10 @@ import 'package:uuid/uuid.dart';
 
 class VlasnikIzmeniProfil extends StatefulWidget {
   final Usluga2 usluga;
-  final String profilePictureUrl;
+  String profilePictureUrl;
   final Map<String, String> galerijaSlike;
 
-  const VlasnikIzmeniProfil({
+  VlasnikIzmeniProfil({
     super.key,
     required this.usluga,
     required this.profilePictureUrl,
@@ -42,6 +42,8 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
   File? selectedFileImg;
   List<String> obrisaneSlike = [];
 
+  int lastGalerijaImgId = 0;
+
   @override void initState() {
     super.initState();
 
@@ -49,6 +51,10 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
       widget.galerijaSlike.forEach((key, value) { 
         galerijaSlike[key] = value;
       });
+
+      if (widget.galerijaSlike.isNotEmpty) {
+        lastGalerijaImgId = int.parse(widget.galerijaSlike.entries.last.key);
+      }
     });
 
     _imeController.text = widget.usluga.ime;
@@ -360,17 +366,32 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
   void _save() async {
     if (newProfilePicture != null) {
       await storageRef.child('${widget.usluga.id}.jpg').putFile(newProfilePicture!);
+
+      String url = await storageRef.child('${widget.usluga.id}.jpg').getDownloadURL();
+
+      setState(() {
+        widget.profilePictureUrl = url;
+      });
     }
 
     for (File img in noveGalerijaSlike) {
-      String newImgId = const Uuid().v4();
+      String newImgId = (lastGalerijaImgId + 1).toString();
       await storageRef.child(auth.currentUser!.uid).child(newImgId).putFile(img);
+
+      String url = await storageRef.child(auth.currentUser!.uid).child(newImgId).getDownloadURL();
+
+      setState(() {
+        widget.galerijaSlike[newImgId] = url;
+
+        lastGalerijaImgId++;
+      });
     }
 
     for (String idObrisaneSlike in obrisaneSlike) {
       await storageRef.child(auth.currentUser!.uid).child(idObrisaneSlike).delete();
+
       setState(() {
-        
+        widget.galerijaSlike.remove(idObrisaneSlike);
       });
     }
 
@@ -379,6 +400,12 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
     await valsnikUslugaRef.child('Ime').set(_imeController.text);
     await valsnikUslugaRef.child('Grad').set(_gradController.text);
     await valsnikUslugaRef.child('Opis').set(_opisController.text);
+
+    setState(() {
+      widget.usluga.ime = _imeController.text;
+      widget.usluga.grad = _gradController.text;
+      widget.usluga.opis = _opisController.text;
+    });
 
     Navigator.pop(context);
     Navigator.pop(context);

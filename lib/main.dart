@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mts_partyup/firebase_options.dart';
 import 'package:mts_partyup/pages/add_objekat.dart';
 import 'package:mts_partyup/pages/home.dart';
+import 'package:mts_partyup/pages/homeslicke.dart';
 import 'package:mts_partyup/pages/kalendar_proba.dart';
 import 'package:mts_partyup/pages/login.dart';
 import 'package:mts_partyup/pages/register.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'Poppins'),
-      home: const Home(),
+      home: const HomeSlicke(),
     );
   }
 }

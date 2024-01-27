@@ -141,14 +141,6 @@ class Usluga2 {
       ocene.add(Ocena.fromSnapshot(ocenaSnapshot));
     }
   }
-
-  Map<String, dynamic> toJson() => {
-    "Ime": ime,
-    "Grad": grad,
-    "Opis": opis,
-    "BrojTelefona": brojTelefona,
-    "TipUsluge": uslugaToString(tipUsluge),
-  };
 }
 
 class Rezervacija {

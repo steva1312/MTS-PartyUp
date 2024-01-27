@@ -245,7 +245,6 @@ class _HomeState extends State<Home> {
                         },
                         child: Image.asset(
                           'assets/icons/dekoracije.png',
-                          height: 20,
                         )),
                   ),
                 ),
@@ -256,9 +255,8 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-}
 
-AppBar appBar(BuildContext context) {
+  AppBar appBar(BuildContext context) {
   return AppBar(
       backgroundColor: Colors.white,
       centerTitle: true,
@@ -283,7 +281,9 @@ AppBar appBar(BuildContext context) {
           color: Colors.black,
         ),
       ),
-      actions: [
+      
+        actions: [
+        if(isOwner==false)
         IconButton(
           onPressed: () {
             Navigator.of(context).push(
@@ -294,5 +294,8 @@ AppBar appBar(BuildContext context) {
             color: Colors.black,
           ),
         ),
-      ]);
+      ]
+      );
 }
+}
+

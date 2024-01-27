@@ -39,7 +39,6 @@ class _Usluge2State extends State<Usluge2> {
       List<Usluga2> ucitaneUsluge = [];
 
       for(DataSnapshot uslugaSnapshot in event.snapshot.children) {
-        print(uslugaSnapshot.child('TipUsluge').value.toString());
         if (uslugaSnapshot.child('TipUsluge').value.toString() != uslugaToString(widget.tipUsluge)) continue;
 
         Usluga2 u = Usluga2.fromSnapshot(uslugaSnapshot);
