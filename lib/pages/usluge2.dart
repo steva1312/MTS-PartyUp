@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
 import 'package:mts_partyup/pages/usluga.dart';
@@ -98,7 +99,7 @@ class _Usluge2State extends State<Usluge2> {
         style: const TextStyle(
             color: Colors.black, fontWeight:
             FontWeight.bold,
-            fontSize: 20
+            fontSize: 22
           ),
       ),
       elevation: 0.0,
@@ -116,64 +117,138 @@ class _Usluge2State extends State<Usluge2> {
   }
 
   Widget _body(BuildContext context) {
-    return ListView(
-      children: usluge.map((u) => 
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => UslugaPage(
-                  usluga: u, 
-                  profilePictureUrl: profilePicturesUrls[u.id]!,
-                  isOwner: isOwner,
-                ))
-              );
-            },
-            
-            child: Row(
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: ListView(
+        children: usluge.map((u) => 
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+            child: Column(
               children: [
-                FadeInImage.assetNetwork(
-                  image: profilePicturesUrls[u.id]!,
-                  placeholder: 'assets/icons/lokal.png',
-                  fit: BoxFit.cover,
-                  fadeInDuration: const Duration(milliseconds: 200),
-                  fadeOutDuration: const Duration(milliseconds: 200),
-                  fadeInCurve: Curves.easeIn,
-                  fadeOutCurve: Curves.easeOut,
-                  width: 75,
-                  height: 75,
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                      
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => UslugaPage(
+                        usluga: u, 
+                        profilePictureUrl: profilePicturesUrls[u.id]!,
+                        isOwner: isOwner,
+                      ))
+                    );
+                  },
+                  
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: FadeInImage.assetNetwork(
+                          image: profilePicturesUrls[u.id]!,
+                          placeholder: 'assets/icons/lokal.png',
+                          fit: BoxFit.cover,
+                          fadeInDuration: const Duration(milliseconds: 200),
+                          fadeOutDuration: const Duration(milliseconds: 200),
+                          fadeInCurve: Curves.easeIn,
+                          fadeOutCurve: Curves.easeOut,
+                          width: 100,
+                          height: 100,
+                        ),
+                      ),
+                      
+                      const SizedBox(width: 20,),
+                      
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            u.ime,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18
+                            )
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              const Icon(
+                                CupertinoIcons.map_pin,
+                                size: 15,
+                              ),
+                              Text(
+                                u.grad,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 15
+                                ),
+                              ),
+                            ],
+                          ),
+                      
+                          const SizedBox(height: 7),
+                      
+                          if (u.prosecnaOcena != 0)
+                            Row(
+                              children: [
+                                Row(
+                                  children: List.filled(
+                                    u.prosecnaOcena.round(), 
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.yellow[600],
+                                      size: 25,
+                                    )
+                                  ),
+                                ),
+                      
+                                const SizedBox(width: 5,),
+                      
+                                const Icon(
+                                  Icons.person,
+                                  size: 18,
+                                  color: Colors.grey,
+                                ),
+                      
+                                const SizedBox(width: 2,),
+                      
+                                Text(
+                                  u.ocene.length.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            )
+                          else
+                            const Text(
+                                  'Neocenjeno',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 15,
+                                    fontStyle: FontStyle.italic
+                                  ),
+                                ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
 
-                const SizedBox(width: 10,),
+                const SizedBox(height: 15,),
 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      u.ime,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18
-                      )
-                    ),
-                    Text(
-                      u.grad,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 15
-                      )
-                    ),
-                  ],
-                ),
+                if (usluge.indexOf(u) != usluge.length - 1)
+                  Divider(
+                    color: Colors.grey[200],
+                  ),
+
+                const SizedBox(height: 15,),
               ],
             ),
-          ),
-        )
-      ).toList(),
+          )
+        ).toList(),
+      ),
     );
   }
 }

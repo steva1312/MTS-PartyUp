@@ -101,173 +101,187 @@ class _HomeState extends State<Home> {
   }
 
   Widget body(BuildContext context) {
-    Widget bigCircle = Container(
-      width: 390.0,
-      height: 600.0,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.rectangle,
-      ),
-    );
+    double sw = MediaQuery.of(context).size.width;
+    double sh = MediaQuery.of(context).size.height;
+    double w = sw * 0.30;
+    double topCenter = sh * 0.35;
+
+    Color ikonicaColor = const Color.fromARGB(255, 221, 221, 221);
+    EdgeInsets p = EdgeInsets.all(w * 0.2);
+
+    // if (vlasnikUsluga != null)
+    //   ElevatedButton(
+    //     onPressed: () {
+    //       Navigator.of(context).push(
+    //         MaterialPageRoute( 
+    //           builder: (context) => VlasnikIzmeniProfil(
+    //             usluga: vlasnikUsluga!, 
+    //             profilePictureUrl: profilePictureUrl!,
+    //             galerijaSlike: galerijaUrls,
+    //           )
+    //         )
+    //       );
+    //     }, 
+
+    //     child: const Text('Izmeni profil')
+    //   )
+
     return Material(
       color: Colors.white,
-      child: Column(
+      child: Stack(
         children: [
-          if (vlasnikUsluga != null)
-            ElevatedButton(
-              onPressed: () {
+          Positioned(
+            top: 0,
+            child: ElevatedButton(onPressed: () {
+              Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) =>
+                         VlasnikIzmeniProfil(usluga: vlasnikUsluga!, profilePictureUrl: profilePictureUrl!, galerijaSlike: galerijaUrls)));
+            }, child: Text('Uredi')),
+          ),
+
+          //center
+          Positioned(
+            top: topCenter,
+            left: sw * 0.5 - w * 0.5,
+            width: w,
+            height: w,
+            child: GestureDetector(
+              onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute( 
-                    builder: (context) => VlasnikIzmeniProfil(
-                      usluga: vlasnikUsluga!, 
-                      profilePictureUrl: profilePictureUrl!,
-                      galerijaSlike: galerijaUrls,
-                    )
-                  )
-                );
-              }, 
-
-              child: const Text('Izmeni profil')
-            ),
-
-          Center(
-            child: Stack(
-              children: <Widget>[
-                bigCircle,
-                Positioned(
-                  bottom: 250.0,
-                  left: 145.0,
-                  child: Container(
-                    width: 100.0,
-                    height: 100.0,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  const Usluge2(tipUsluge: TipUsluge.prostori)));
-                        },
-                        child: Image.asset(
-                          'assets/icons/prostori.png',
-                          height: 100,
-                        )),
+                  MaterialPageRoute(builder: (context) =>
+                      const Usluge2(tipUsluge: TipUsluge.prostori)));
+              },
+              child: Container(
+                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                child: Padding(
+                  padding: p,
+                  child: Image.asset(
+                    'assets/icons/prostori.png',
                   ),
                 ),
-                Positioned(
-                  top: 152.4,
-                  left: 70.0,
-                  child: Container(
-                    width: 100.0,
-                    height: 100.0,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  const Usluge2(tipUsluge: TipUsluge.muzika)));
-                        },
-                        child: Image.asset(
-                          'assets/icons/muzika.png',
-                          height: 20,
-                        )),
-                  ),
-                ),
-                Positioned(
-                  top: 152.4,
-                  right: 70.0,
-                  child: Container(
-                    width: 100.0,
-                    height: 100.0,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  const Usluge2(tipUsluge: TipUsluge.fotografi)));
-                        },
-                        child: Image.asset(
-                          'assets/icons/fotografi.png',
-                          height: 20,
-                        )),
-                  ),
-                ),
-                Positioned(
-                  bottom: 220.0,
-                  left: 30.0,
-                  child: Container(
-                    width: 100.0,
-                    height: 100.0,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  const Usluge2(tipUsluge: TipUsluge.torte)));
-                        },
-                        child: Image.asset(
-                          'assets/icons/torte.png',
-                          height: 20,
-                        )),
-                  ),
-                ),
-                Positioned(
-                  bottom: 220.0,
-                  right: 10.0,
-                  child: Container(
-                    width: 100.0,
-                    height: 100.0,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  const Usluge2(tipUsluge: TipUsluge.ketering)));
-                        },
-                        child: Image.asset(
-                          'assets/icons/ketering.png',
-                          height: 20,
-                        )),
-                  ),
-                ),
-                Positioned(
-                  bottom: 132.0,
-                  left: 145.0,
-                  child: Container(
-                    width: 100.0,
-                    height: 100.0,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  const Usluge2(tipUsluge: TipUsluge.dekoracije)));
-                        },
-                        child: Image.asset(
-                          'assets/icons/dekoracije.png',
-                        )),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
+      
+          //top left
+          Positioned(
+            top: topCenter - w * 0.95,
+            left: sw * 0.5 - w * 0.5 - w * 0.65,
+            width: w,
+            height: w,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) =>
+                    const Usluge2(tipUsluge: TipUsluge.muzika)));
+              },
+              child: Container(
+                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                child: Padding(
+                  padding: p,
+                  child: Image.asset(
+                    'assets/icons/muzika.png',
+                  ),
+                ),
+              ),
+            ),
+          ),
+      
+          //top right
+          Positioned(
+            top: topCenter - w * 0.95,
+            left: sw * 0.5 - w * 0.5 + w * 0.65,
+            width: w,
+            height: w,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) =>
+                    const Usluge2(tipUsluge: TipUsluge.fotografi)));
+              },
+              child: Container(
+                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                child: Padding(
+                  padding: EdgeInsets.all(w * 0.17),
+                  child: Image.asset(
+                    'assets/icons/fotografi.png',
+                  ),
+                ),
+              ),
+            ),
+          ),
+      
+          //left
+          Positioned(
+            top: topCenter + w * 0.3,
+            left: sw * 0.5 - w * 0.5 - w - w * 0.1,
+            width: w,
+            height: w,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) =>
+                    const Usluge2(tipUsluge: TipUsluge.torte)));
+              },
+              child: Container(
+                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                child: Padding(
+                  padding: EdgeInsets.all(w * 0.17),
+                  child: Image.asset(
+                    'assets/icons/torte.png',
+                  ),
+                ),
+              ),
+            ),
+          ),
+      
+          //right
+          Positioned(
+            top: topCenter + w * 0.3,
+            left: sw * 0.5 - w * 0.5 + w + w * 0.1,
+            width: w,
+            height: w,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) =>
+                    const Usluge2(tipUsluge: TipUsluge.ketering)));
+              },
+              child: Container(
+                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                child: Padding(
+                  padding: EdgeInsets.all(w * 0.17),
+                  child: Image.asset(
+                    'assets/icons/ketering.png',
+                  ),
+                ),
+              ),
+            ),
+          ),
+      
+          //bottom
+          Positioned(
+            top: topCenter + w + w * 0.1,
+            left: sw * 0.5 - w * 0.5,
+            width: w,
+            height: w,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) =>
+                    const Usluge2(tipUsluge: TipUsluge.dekoracije)));
+              },
+              child: Container(
+                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                child: Padding(
+                  padding: EdgeInsets.all(w * 0.17),
+                  child: Image.asset(
+                    'assets/icons/dekoracije.png',
+                  ),
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );

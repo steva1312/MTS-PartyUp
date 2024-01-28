@@ -25,7 +25,7 @@ class VlasnikIzmeniProfil extends StatefulWidget {
 }
 
 class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
-  final uslugeRef = FirebaseDatabase.instance.ref('Usluga');
+  final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
   final storageRef = FirebaseStorage.instance.ref();
   final auth = FirebaseAuth.instance;
 
@@ -34,6 +34,7 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
   final _imeController = TextEditingController();
   final _gradController = TextEditingController();
   final _opisController = TextEditingController();
+  final _ytController = TextEditingController();
 
   Map<String, String> galerijaSlike = {};
   List<File> noveGalerijaSlike = [];
@@ -132,6 +133,15 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
           _textFormField(_opisController, expanded: true),
           const SizedBox(height: 30,),
 
+          if (widget.usluga.tipUsluge == TipUsluge.muzika)
+          ...[
+              _text('Promo video'),
+            const SizedBox(height: 5,),
+            
+            _promoVideo(),
+            const SizedBox(height: 30,),
+          ],
+
           _text('Galerija'),
           const SizedBox(height: 5,),
           
@@ -228,9 +238,7 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
         contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
         filled: false,
         fillColor: const Color(0xFFededed),
-        suffix: const Icon(
-          Icons.edit
-        ),
+        suffixIcon: const Icon(Icons.edit),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: const BorderSide(
@@ -401,6 +409,10 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
     await valsnikUslugaRef.child('Grad').set(_gradController.text);
     await valsnikUslugaRef.child('Opis').set(_opisController.text);
 
+    if (widget.usluga.tipUsluge == TipUsluge.muzika) {
+      valsnikUslugaRef.child('YtLink').set(_ytController.text);
+    }
+
     setState(() {
       widget.usluga.ime = _imeController.text;
       widget.usluga.grad = _gradController.text;
@@ -409,6 +421,16 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
 
     Navigator.pop(context);
     Navigator.pop(context);
+  }
+
+  Widget _promoVideo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Unesite link videa sa YouTube-a.'),
+        _textFormField(_ytController)
+      ],
+    );
   }
 
   Widget _galerija() {

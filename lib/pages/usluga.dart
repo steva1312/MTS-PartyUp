@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -5,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class UslugaPage extends StatefulWidget {
   final Usluga2 usluga;
@@ -41,14 +45,20 @@ class _UslugaPageState extends State<UslugaPage> {
   bool saved = false;
 
   int activeIndex = 0;
-  final controller = CarouselController();
+  final galerijaController = CarouselController();
   List<String> urlImages = [];
+
+  late YoutubePlayerController _ytController;
 
   void loadGalerija() async {
     List<String> loadedGalerijaUrls = [];
 
-    await storageRef.child(auth.currentUser!.uid).listAll().then((value) async {
-      for (var item in value.items) {
+    await storageRef.child(widget.usluga.id).listAll().then((value) async {
+
+      List<Reference> newItems = value.items.toList();
+      newItems.sort((item1, item2) => int.parse(item1.name).compareTo(int.parse(item2.name)));
+
+      for (var item in newItems) {
         String galerijaUrl = await item.getDownloadURL();
         loadedGalerijaUrls.add(galerijaUrl);
       }
@@ -64,6 +74,16 @@ class _UslugaPageState extends State<UslugaPage> {
   @override
   void initState() {
     super.initState();
+    
+    if (widget.usluga.tipUsluge == TipUsluge.muzika) {
+      _ytController = YoutubePlayerController(
+        initialVideoId: YoutubePlayer.convertUrlToId(widget.usluga.ytLink)!,
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
+        )
+      );
+    }
+
     _setImePrezime();
     loadGalerija();
     CheckIfSaved();
@@ -168,22 +188,29 @@ class _UslugaPageState extends State<UslugaPage> {
   Widget _body(BuildContext context) {
     return ListView(children: [
       Padding(
-        padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
+        padding: const EdgeInsets.fromLTRB(0, 10, 0, 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _uslugaInfo(),
-            const SizedBox(
-              height: 60,
-            ),
+
+            const SizedBox(height: 60,),
+
+            if (widget.usluga.tipUsluge == TipUsluge.muzika)
+            ...[
+              _ytVideo(),
+              const SizedBox(height: 45,),
+            ],
+            
+
             galerijaSlajder(),
-            const SizedBox(
-              height: 60,
-            ),
+
+            const SizedBox(height: 45,),
+
             _writeReview(),
-            const SizedBox(
-              height: 45,
-            ),
+            
+            const SizedBox(height: 45,),
+
             _ocene(),
           ],
         ),
@@ -427,154 +454,218 @@ class _UslugaPageState extends State<UslugaPage> {
     );
   }
 
+  Widget _ytVideo() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Promo video',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+
+          const SizedBox(height: 5,),
+
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: YoutubePlayer(
+              controller: _ytController,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+  
   Widget galerijaSlajder() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CarouselSlider.builder(
-            carouselController: controller,
-            itemCount: urlImages.length,
-            itemBuilder: (context, index, realIndex) {
-              final urlImage = urlImages[index];
-              return buildImage(urlImage, index);
-            },
-            options: CarouselOptions(
-                height: 250,
-                viewportFraction: 0.75,
-                autoPlay: true,
-                enableInfiniteScroll: false,
-                autoPlayAnimationDuration: const Duration(seconds: 2),
-                onPageChanged: (index, reason) =>
-                    setState(() => activeIndex = index))),
-        const SizedBox(height: 12),
-        buildIndicator()
+        const Padding(
+          padding: EdgeInsets.only(left: 20),
+          child: Text(
+            'Galerija',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+        ),
+
+        const SizedBox(
+          height: 10,
+        ),
+
+        if (urlImages.isNotEmpty)
+          Column(
+            children: [
+              CarouselSlider.builder(
+                carouselController: galerijaController,
+                itemCount: urlImages.length,
+                itemBuilder: (context, index, realIndex) {
+                  final urlImage = urlImages[index];
+                  return buildImage(urlImage, index);
+                },
+                options: CarouselOptions(
+                  viewportFraction: 0.9,
+                  height: MediaQuery.of(context).size.width * 0.9,
+                  autoPlay: true,
+                  enableInfiniteScroll: false,
+                  autoPlayAnimationDuration: const Duration(seconds: 1),
+                  onPageChanged: (index, reason) =>
+                      setState(() => activeIndex = index))
+              ),
+
+              const SizedBox(height: 12),
+
+              buildIndicator()
+            ],
+          )
+        
+        else
+          const Padding(
+            padding: EdgeInsets.only(left: 20),
+            child: Text('Ova usluga nema slika.'),
+          )
       ],
     );
   }
 
   Widget buildImage(String urlImage, int index) =>
-      Container(child: Image.network(urlImage, fit: BoxFit.cover));
+      Padding(
+        padding: const EdgeInsets.all(5),
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          child: CachedNetworkImage(imageUrl: urlImage),
+        ),
+      );
 
   Widget buildIndicator() => AnimatedSmoothIndicator(
         onDotClicked: animateToSlide,
-        effect: const ExpandingDotsEffect(
-            dotWidth: 15, activeDotColor: Colors.blue),
+        effect: ExpandingDotsEffect(
+          dotHeight: 13,
+          dotWidth: 13, 
+          activeDotColor: Colors.blue,
+          dotColor: Colors.grey[300]!
+        ),
         activeIndex: activeIndex,
         count: urlImages.length,
       );
 
-  void animateToSlide(int index) => controller.animateToPage(index);
+  void animateToSlide(int index) => galerijaController.animateToPage(index);
 
   Widget _writeReview() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Ocenite uslugu',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        if (widget.isOwner == null)
-          const Text('Prijavite se da biste mogli da ocenite uslugu')
-        else if (widget.isOwner == true)
-          const Text('Nije moguće ocenjivanje ukoliko ste vlasnik neke usluge')
-        else if (widget.usluga.ocene.any(
-            (o) => o.idKorisnika == FirebaseAuth.instance.currentUser!.uid))
-          const Text('Veće ste ocenili ovu uslugu')
-        else ...[
-          _zvezdice(),
-          if (showZvezdiceError)
-            const Text(
-              'Izaberite ocenu',
-              style: TextStyle(
-                  fontSize: 15, color: Colors.red, fontStyle: FontStyle.italic),
-            ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Ocenite uslugu',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
           const SizedBox(
             height: 10,
           ),
-          const Row(
-            children: [
-              Text(
-                'Komentar',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Text(
-                '*nije obavezno',
+          if (widget.isOwner == null)
+            const Text('Prijavite se da biste mogli da ocenite uslugu.')
+          else if (widget.isOwner == true)
+            const Text('Nije moguće ocenjivanje ukoliko ste vlasnik neke usluge.')
+          else if (widget.usluga.ocene.any(
+              (o) => o.idKorisnika == FirebaseAuth.instance.currentUser!.uid))
+            const Text('Veće ste ocenili ovu uslugu.')
+          else ...[
+            _zvezdice(),
+            if (showZvezdiceError)
+              const Text(
+                'Izaberite ocenu',
                 style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                    fontStyle: FontStyle.italic),
+                    fontSize: 15, color: Colors.red, fontStyle: FontStyle.italic),
               ),
-            ],
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          TextFormField(
-            controller: _komentarController,
-            style: const TextStyle(fontSize: 14),
-            maxLines: 4,
-            cursorColor: Colors.black,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.all(15),
-              filled: false,
-              fillColor: const Color(0xFFededed),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide:
-                      const BorderSide(color: Color(0xFFededed), width: 1)),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: Colors.black, width: 2)),
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide:
-                      const BorderSide(color: Color(0xFFededed), width: 2)),
+            const SizedBox(
+              height: 10,
             ),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                if (ocenaKorisnika == 0) {
+            const Row(
+              children: [
+                Text(
+                  'Komentar',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  '*nije obavezno',
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey,
+                      fontStyle: FontStyle.italic),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            TextFormField(
+              controller: _komentarController,
+              style: const TextStyle(fontSize: 14),
+              maxLines: 4,
+              cursorColor: Colors.black,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.all(15),
+                filled: false,
+                fillColor: const Color(0xFFededed),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFededed), width: 1)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.black, width: 2)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFededed), width: 2)),
+              ),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            ElevatedButton(
+                onPressed: () async {
+                  if (ocenaKorisnika == 0) {
+                    setState(() {
+                      showZvezdiceError = true;
+                    });
+      
+                    return;
+                  }
+      
+                  Ocena ocenaObjekat = Ocena(auth.currentUser!.uid,
+                      ocenaKorisnika, _komentarController.text);
+      
+                  await uslugeRef
+                      .child(widget.usluga.id)
+                      .child('Ocene')
+                      .child(auth.currentUser!.uid)
+                      .set(ocenaObjekat.toJson());
+      
+                  await ocenaObjekat.postaviImePrezime(korisniciRef);
+      
                   setState(() {
-                    showZvezdiceError = true;
+                    widget.usluga.ocene.insert(0, ocenaObjekat);
+                    showZvezdiceError = false;
+                    ocenaKorisnika = 0;
                   });
-
-                  return;
-                }
-
-                Ocena ocenaObjekat = Ocena(auth.currentUser!.uid,
-                    ocenaKorisnika, _komentarController.text);
-
-                await uslugeRef
-                    .child(widget.usluga.id)
-                    .child('Ocene')
-                    .child(auth.currentUser!.uid)
-                    .set(ocenaObjekat.toJson());
-
-                await ocenaObjekat.postaviImePrezime(korisniciRef);
-
-                setState(() {
-                  widget.usluga.ocene.insert(0, ocenaObjekat);
-                  showZvezdiceError = false;
-                  ocenaKorisnika = 0;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFededed),
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)))),
-              child: const Text('Objavi')),
-        ]
-      ],
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFededed),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)))),
+                child: const Text('Objavi')),
+          ]
+        ],
+      ),
     );
   }
 
@@ -610,24 +701,32 @@ class _UslugaPageState extends State<UslugaPage> {
   }
 
   Widget _ocene() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Ocene',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: widget.usluga.ocene
-              .where((o) => o.imePrezime != null)
-              .map((o) => _ocena(o))
-              .toList(),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Ocene',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+
+          if (widget.usluga.ocene.isNotEmpty)
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: widget.usluga.ocene
+                  .where((o) => o.imePrezime != null)
+                  .map((o) => _ocena(o))
+                  .toList(),
+            )
+
+          else 
+            const Text('Ova usluga je trenutno neocenjena.')
+        ],
+      ),
     );
   }
 
