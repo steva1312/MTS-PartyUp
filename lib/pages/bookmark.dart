@@ -24,6 +24,7 @@ class _BookmarkState extends State<Bookmark> {
 
  @override
   void initState() {
+    super.initState();
     getDataFromDB();
     setIsOwner();
   }

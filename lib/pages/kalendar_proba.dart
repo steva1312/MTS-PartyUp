@@ -5,13 +5,9 @@ import 'package:mts_partyup/data.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Kalendar extends StatefulWidget {
-  final Usluga usluga;
-  final Map<String, dynamic> jsonDatumi;
 
   const Kalendar({
     super.key,
-    required this.usluga,
-    required this.jsonDatumi
   });
 
   @override
@@ -59,7 +55,6 @@ class _KalendarState extends State<Kalendar> {
       
           ElevatedButton(
             onPressed: () {
-              uslugeRef.child(widget.usluga.tipUsluge).child(widget.usluga.id).child('Zakazano').set(widget.jsonDatumi);
             },
             child: const Text('Sacuvaj')
           )
@@ -80,23 +75,9 @@ class _KalendarState extends State<Kalendar> {
       
       calendarBuilders: CalendarBuilders(
         defaultBuilder: (context, day, focusedDay) {
-          for (String datumString in widget.jsonDatumi.keys) {
-            DateTime datum = DateTime.parse(datumString);
-
-            if (day.day == datum.day && day.month == datum.month && day.year == datum.year) {
-              return _zauzetDan(day.day);
-            }
-          }
-
-          return _slobodanDan(day.day);
         },
 
         selectedBuilder: (context, day, focusedDay) {
-          if (widget.jsonDatumi.keys.contains(DateFormat('yyyy-MM-dd').format(_focusedDay))) {
-            return _zauzetDan(day.day);
-          }
-          
-          return _slobodanDan(day.day);
         },
 
         dowBuilder: (context, day) {
@@ -125,13 +106,6 @@ class _KalendarState extends State<Kalendar> {
           _focusedDay = selectedDay;
 
           String datum = DateFormat('yyyy-MM-dd').format(_focusedDay);
-          
-          if (!widget.jsonDatumi.containsKey(datum)) {
-            widget.jsonDatumi[datum] = '';
-          }
-          else {
-            widget.jsonDatumi.remove(datum);
-          }
         });
       },
     );

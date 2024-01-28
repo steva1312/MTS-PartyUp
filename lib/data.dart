@@ -126,6 +126,10 @@ class Usluga2 {
   String opis = '';
   String brojTelefona = '';
 
+  String ytLink = '';
+
+  double prosecnaOcena = 0; 
+
   List<Ocena> ocene = [];
   List<Rezervacija> rezervacije = [];
 
@@ -137,9 +141,18 @@ class Usluga2 {
     opis = uslugaSnapshot.child('Opis').value.toString();
     brojTelefona = uslugaSnapshot.child('BrojTelefona').value.toString();
 
-    for (DataSnapshot ocenaSnapshot in uslugaSnapshot.child('Ocene').children) {
-      ocene.add(Ocena.fromSnapshot(ocenaSnapshot));
+    if (tipUsluge == TipUsluge.muzika) {
+      ytLink = uslugaSnapshot.child('YtLink').value.toString();
+      print(ytLink);
     }
+
+    for (DataSnapshot ocenaSnapshot in uslugaSnapshot.child('Ocene').children) {
+      Ocena o = Ocena.fromSnapshot(ocenaSnapshot);
+      ocene.add(o);
+      prosecnaOcena += o.ocena;
+    }
+
+    if (ocene.isNotEmpty) prosecnaOcena /= ocene.length;
 
     for (DataSnapshot rezervacijaSnapshot in rezervacijeSnapshot.children) {
       print(rezervacijaSnapshot.child('IdUsluge').value.toString());
