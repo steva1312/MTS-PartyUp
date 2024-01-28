@@ -16,7 +16,9 @@ class _BookmarkState extends State<Bookmark> {
   final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
   final korisniciRef=FirebaseDatabase.instance.ref('Korisnici');
   final storageRef = FirebaseStorage.instance.ref();
+  final rezervacijeRef = FirebaseDatabase.instance.ref('Rezervacije');
   bool? isOwner;
+  DataSnapshot? rezervacijeSnapshot;
 
   String text = 'Usluge';
   List<Usluga2> usluge = [];
@@ -42,6 +44,11 @@ class _BookmarkState extends State<Bookmark> {
   }
 
 void getDataFromDB() {
+    rezervacijeRef.once().then((event) {
+      setState(() {
+        rezervacijeSnapshot = event.snapshot;
+      });
+    });
     List<String> sacuvaniKorisnika = [];
 
     korisniciRef.child(FirebaseAuth.instance.currentUser!.uid).child('Saved').once().then((event) {
@@ -56,11 +63,11 @@ void getDataFromDB() {
 
       List<Usluga2> ucitaneUsluge = [];
 
-      /*for(DataSnapshot uslugaSnapshot in event.snapshot.children) {
+      for(DataSnapshot uslugaSnapshot in event.snapshot.children) {
         //if (uslugaSnapshot.child('TipUsluge').value.toString() != uslugaToString(widget.tipUsluge)) continue;
         if(sacuvaniKorisnika.contains(uslugaSnapshot.key.toString()))
         {
-        //Usluga2 u = Usluga2.fromSnapshot(uslugaSnapshot,);
+        Usluga2 u = Usluga2.fromSnapshot(uslugaSnapshot,rezervacijeSnapshot!);
         ucitaneUsluge.add(u);
         final profilePictureUrl = await storageRef.child('${u.id}.jpg').getDownloadURL();
 
@@ -68,7 +75,7 @@ void getDataFromDB() {
           profilePicturesUrls[u.id] = profilePictureUrl;
         });
         }
-      }*/
+      }
 
       setState(() {
         for(Usluga2 u in ucitaneUsluge) {
@@ -77,7 +84,7 @@ void getDataFromDB() {
       });
     });
   }
-
+  
  @override
   Widget build(BuildContext context) {
     return Scaffold(
