@@ -22,14 +22,22 @@ class _Usluge2State extends State<Usluge2> {
   final rezervacijeRef = FirebaseDatabase.instance.ref('Rezervacije');
   DataSnapshot? rezervacijeSnapshot;
   bool? isOwner;
-  String searchtext= '';
+
+  String datumText = '';
+  String searchText = '';
+
   final searchController = TextEditingController();
+  final datumController = TextEditingController();
+
+  String inputGrad = gradovi[0];
 
   String text = 'Usluge';
   List<Usluga2> usluge = [];
   List<Usluga2> uslugeNotTemp = [];
 
   Map<String, String> profilePicturesUrls = {};
+
+  bool sortirajPoOceni = false;
 
   @override
   void initState() {
@@ -140,7 +148,7 @@ class _Usluge2State extends State<Usluge2> {
 
   Widget buildSheet() => makeDismissible(
         child: DraggableScrollableSheet(
-            initialChildSize: 0.2,
+            initialChildSize: 0.5,
             maxChildSize: 0.5,
             minChildSize: 0.1,
             builder: (_, controller) => Container(
@@ -152,43 +160,114 @@ class _Usluge2State extends State<Usluge2> {
                   padding: const EdgeInsets.all(10),
                   child: ListView(
                     controller: controller,
-                    children: [                    
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
                       TextField(
-                        onChanged: (String value) async
-                        {
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          labelText: 'Pretrazi',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        onChanged: (String value) {
                           setState(() {
-                          searchtext=value;
-                          prikaziUsluge();
+                            searchController.text = value;
+                            searchText = value;
+                            prikaziUsluge();
                           });
                         },
                       ),
-                      const Text('gas',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18)),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      DropdownButtonFormField(
+                          items: gradovi
+                              .map((o) => DropdownMenuItem(
+                                    value: o,
+                                    child: Text(o),
+                                  ))
+                              .toList(),
+                          decoration: const InputDecoration(
+                            labelText: 'Grad',
+                            prefixIcon: Icon(Icons.location_on_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20),
+                              ),
+                            ),
+                          ),
+                          value: inputGrad,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              inputGrad = newValue!;
+                              prikaziUsluge();
+                            });
+                          }),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      TextField(
+                        controller: datumController,
+                        decoration: InputDecoration(
+                          labelText: 'Slobodan datum',
+                          prefixIcon: const Icon(Icons.date_range),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        onChanged: (String value) {
+                          setState(() {
+                            datumController.text = value;
+                            datumText = value;
+                            prikaziUsluge();
+                          });
+                        },
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      CheckboxListTile(
+                        title: const Text('Sortiraj po oceni'),
+                        value: sortirajPoOceni,
+                        onChanged: (newValue) {
+                          setState(() {
+                            sortirajPoOceni = !sortirajPoOceni;
+                            prikaziUsluge();
+                          });
+                        },
+                        controlAffinity:
+                        ListTileControlAffinity.leading, //  <-- leading Checkbox
+                      ),
                     ],
                   ),
                 )),
       );
   void prikaziUsluge() {
     setState(() {
-      if (searchtext != '') {
       usluge.clear();
-      for(Usluga2 sadusluga in uslugeNotTemp) {
-        if (sadusluga.ime.toString().toLowerCase().contains(searchtext.toLowerCase())) {
+      for (Usluga2 sadusluga in uslugeNotTemp) {
+        if (sadusluga.ime
+                .toString()
+                .toLowerCase()
+                .contains(searchText.toLowerCase()) &&
+            sadusluga.grad
+                .toString()
+                .toLowerCase()
+                .contains(inputGrad.toLowerCase()) &&
+            sadusluga.zauzetDatum.toString() != datumText) {
           usluge.add(sadusluga);
+          if (sortirajPoOceni) {
+            usluge.sort((a, b) => b.prosecnaOcena.compareTo(a.prosecnaOcena));
+          }
         }
       }
-    } else {
-      usluge.clear();
-       for(Usluga2 sadusluga in uslugeNotTemp)
-       {
-        usluge.add(sadusluga);
-       }
-    }
     });
   }
+
   Widget _body(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 20),
