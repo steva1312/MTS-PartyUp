@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:mts_partyup/pages/rezervacije_korisnik.dart';
 import 'package:mts_partyup/pages/vlasnik.dart';
 
 class Nalog extends StatefulWidget {
@@ -73,20 +74,26 @@ class _NalogPageState extends State<Nalog> {
                 if(isOwner == null)
                   const Text('Ucitavanje...')
                 else if (isOwner == true)
-                  const Text('Vlasnik')
-                else 
-                  const Text('Korisnik'),
-
-                if (isOwner == true) 
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const Vlasnik()
-                        )
-                      );
-                    },
-                    child: const Text('Uredi profil')
+                      onPressed: () {
+                        Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) => const Vlasnik()
+                            )
+                        );
+                      },
+                      child: const Text('Uredi profil')
+                  )
+                else 
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) => const RezervacijeKorisnik()
+                            )
+                        );
+                      },
+                      child: const Text('Rezervacije')
                   )
               ],
             ))

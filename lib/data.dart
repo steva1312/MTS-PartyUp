@@ -114,6 +114,7 @@ class Usluga2 {
   String grad = '';
   String opis = '';
   String brojTelefona = '';
+  String zauzetDatum = '';
 
   String ytLink = '';
 
@@ -131,10 +132,10 @@ class Usluga2 {
     grad = uslugaSnapshot.child('Grad').value.toString();
     opis = uslugaSnapshot.child('Opis').value.toString();
     brojTelefona = uslugaSnapshot.child('BrojTelefona').value.toString();
+    zauzetDatum = uslugaSnapshot.child('ZauzetDatum').value.toString();
 
     if (tipUsluge == TipUsluge.muzika) {
       ytLink = uslugaSnapshot.child('YtLink').value.toString();
-      print(ytLink);
     }
 
     for (DataSnapshot ocenaSnapshot in uslugaSnapshot.child('Ocene').children) {
@@ -170,7 +171,7 @@ class Rezervacija {
     idKorisnika = snapshot.child('IdKorisnika').value.toString();
     idUsluge = snapshot.child('IdUsluge').value.toString();
     opis = snapshot.child('Opis').value.toString();
-    status = 1;
+    status = int.parse(snapshot.child('Status').value.toString());
   }
 }
 
@@ -186,7 +187,6 @@ class Ocena {
   Ocena.fromSnapshot(DataSnapshot snapshot) {
     idKorisnika = snapshot.key!;
     ocena = int.parse(snapshot.child('Ocena').value.toString());
-    print(ocena);
     komentar = snapshot.child('Komentar').value.toString();
     //imePrezime se odredjuje u usluga.dart zbog optimizacije
   }
@@ -240,73 +240,73 @@ Future<File?> pickImageFromGalleryAndCrop() async {
 }
 
 List<String> gradovi = [
+  '',
   'Apatin',
-'Aranđelovac',
-'Bača Palanka',
-'Bački Jarak',
-'Bački Petrovac',
-'Babušnica',
-'Beograd',
-'Bela Crkva',
-'Bogatić',
-'BOR',
-'Brus',
-'Valjevo',
-'Velika Plana',
-'Vladimirci',
-'Vranje',
-'Vrbas',
-'Vršac',
-'Gornji Milanovac',
-'Dimitrovgrad',
-'Zaječar',
-'Zrenjanin',
-'Inđija',
-'Jagodina',
-'Kikinda',
-'Kraljevo',
-'Kruševac',
-'Kučevo',
-'Laćarak',
-'Lapovo',
-'Leskovac',
-'Loznica',
-'Lučani',
-'Majdanpek',
-'Mali Zvornik',
-'Mladenovac',
-'Negotin',
-'Niš',
-'Nova Varoš',
-'Novi Pazar',
-'Novi Sad',
-'Obrenovac',
-'Pančevo',
-'Paraćin',
-'Petrovac na Mlavi',
-'Pirot',
-'Požarevac',
-'Prekret',
-'Prenovo',
-'Probištip',
-'Prijepolje',
-'Priština',
-'Pčinjski Okrug',
-'Raška',
-'Ripanj',
-'Ruma',
-'Sejegac',
-'Sentanskoskojušinski Okrug',
-'Senta',
-'Sjenica',
-'Sombor',
-'Subotica',
-'Surdulica',
-'Sjenica',
-'Temerin',
-'Titel',
-'Topola',
-'Tutin',
-'Užice',
-'Futog'
+  'Aranđelovac',
+  'Bačka Palanka',
+  'Bački Jarak',
+  'Bački Petrovac',
+  'Babušnica',
+  'Beograd',
+  'Bela Crkva',
+  'Bogatić',
+  'BOR',
+  'Brus',
+  'Valjevo',
+  'Velika Plana',
+  'Vladimirci',
+  'Vranje',
+  'Vrbas',
+  'Vršac',
+  'Gornji Milanovac',
+  'Dimitrovgrad',
+  'Zaječar',
+  'Zrenjanin',
+  'Inđija',
+  'Jagodina',
+  'Kikinda',
+  'Kraljevo',
+  'Kragujevac',
+  'Kruševac',
+  'Kučevo',
+  'Laćarak',
+  'Lapovo',
+  'Leskovac',
+  'Loznica',
+  'Lučani',
+  'Majdanpek',
+  'Mali Zvornik',
+  'Mladenovac',
+  'Negotin',
+  'Niš',
+  'Nova Varoš',
+  'Novi Pazar',
+  'Novi Sad',
+  'Obrenovac',
+  'Pančevo',
+  'Paraćin',
+  'Petrovac na Mlavi',
+  'Pirot',
+  'Požarevac',
+  'Prekret',
+  'Prenovo',
+  'Probištip',
+  'Prijepolje',
+  'Priština',
+  'Raška',
+  'Ripanj',
+  'Ruma',
+  'Sejegac',
+  'Senta',
+  'Sjenica',
+  'Sombor',
+  'Subotica',
+  'Surdulica',
+  'Sjenica',
+  'Temerin',
+  'Titel',
+  'Topola',
+  'Tutin',
+  'Užice',
+  'Futog'
 ];

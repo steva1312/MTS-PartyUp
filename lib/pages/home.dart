@@ -330,7 +330,7 @@ class _HomeState extends State<Home> {
               }
             },
             icon: Icon(
-              isOwner == true ? Icons.next_plan_outlined : Icons.bookmark,
+              isOwner == true ? Icons.format_list_bulleted : Icons.bookmark,
               color: Colors.black,
             ),
           ),
