@@ -83,6 +83,7 @@ class _LoginPageState extends State<Login> {
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    Navigator.of(context).pop();
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => const Register()), // replace with your register page
                     );
@@ -103,9 +104,12 @@ class _LoginPageState extends State<Login> {
         email: email,
         password: password,
       );
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const Home()), // replace with your home page
-      );
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const Home()), // replace with your home page
+        );
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print('No user found for that email.');

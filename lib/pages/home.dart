@@ -136,7 +136,7 @@ class _HomeState extends State<Home> {
               Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) =>
                          VlasnikIzmeniProfil(usluga: vlasnikUsluga!, profilePictureUrl: profilePictureUrl!, galerijaSlike: galerijaUrls)));
-            }, child: Text('Uredi')),
+            }, child: const Text('Uredi')),
           ),
 
           //center

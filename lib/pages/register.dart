@@ -136,6 +136,7 @@ class _RegisterPageState extends State<Register> {
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    Navigator.of(context).pop();
                     Navigator.of(context).push(
                       MaterialPageRoute(
                           builder: (context) =>
@@ -189,6 +190,7 @@ class _RegisterPageState extends State<Register> {
         'BrojTelefona': _brojTelefonaController.text,
       });
       if (context.mounted) {
+        Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
               builder: (context) =>

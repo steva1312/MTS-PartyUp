@@ -191,6 +191,7 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
       });
 
       if (context.mounted) {
+        Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (
               context) => const Home()), // replace with your home page
