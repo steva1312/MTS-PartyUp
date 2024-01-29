@@ -1,179 +1,591 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:mts_partyup/data.dart';
+import 'package:mts_partyup/pages/home.dart';
 import 'package:uuid/uuid.dart';
 
-final formKey = GlobalKey<FormState>();
+class Dodaj extends StatefulWidget {
+  final Usluga2 usluga;
+  String profilePictureUrl;
+  final Map<String, String> galerijaSlike;
 
-class AddObjekat extends StatefulWidget {
-  const AddObjekat({super.key});
+  Dodaj({
+    super.key,
+    required this.usluga,
+    required this.profilePictureUrl,
+    required this.galerijaSlike,
+  });
 
   @override
-  State<AddObjekat> createState() => _AddObjekatState();
+  State<Dodaj> createState() => _VlasnikIzmeniProfilState();
 }
 
-class _AddObjekatState extends State<AddObjekat> {
-  final objektiDbRef = FirebaseDatabase.instance.ref('Usluge');
+class _VlasnikIzmeniProfilState extends State<Dodaj> {
+  final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
   final storageRef = FirebaseStorage.instance.ref();
+  final auth = FirebaseAuth.instance;
+
+  File? newProfilePicture;
+
+  final _imeController = TextEditingController();
+  final _gradController = TextEditingController();
+  final _opisController = TextEditingController();
+  final _ytController = TextEditingController();
 
   String inputTipUsluge = uslugaToString(TipUsluge.values[0]);
-  String inputNaziv = '';
-  String inputOkrug = '';
-  String inputGrad = '';
-  String inputCena = '';
+  String inputImeGrada = gradovi[1];
 
-  File? pickedProfilePicture;
+  Map<String, String> galerijaSlike = {};
+  List<File> noveGalerijaSlike = [];
+
+  String? selectedGalerijaImg;
+  File? selectedFileImg;
+  List<String> obrisaneSlike = [];
+
+  int lastGalerijaImgId = 0;
+
+  bool savedAndExit = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    setState(() {
+      widget.galerijaSlike.forEach((key, value) {
+        galerijaSlike[key] = value;
+      });
+
+      if (widget.galerijaSlike.isNotEmpty) {
+        lastGalerijaImgId = int.parse(widget.galerijaSlike.entries.last.key);
+        print(lastGalerijaImgId);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBar(context),
-      body: body(context),
+    return WillPopScope(
+      onWillPop: () async {
+        return await _showCancelDialog();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+            backgroundColor: Colors.white,
+            centerTitle: true,
+            title: const Text(
+              'Registruj uslugu',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20),
+            ),
+            elevation: 0.0,
+            leading: IconButton(
+              icon: const Icon(
+                Icons.close_outlined,
+                size: 33,
+              ),
+              onPressed: () async {
+                final t = await _showCancelDialog();
+                if (t) Navigator.of(context).pop();
+              },
+            ),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  _showSaveDialog();
+                },
+                icon: const Icon(
+                  CupertinoIcons.checkmark_alt,
+                  size: 33,
+                ),
+              ),
+            ]),
+        body: _body(context),
+        backgroundColor: Colors.white,
+      ),
     );
   }
 
-  AppBar appBar(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.white,
-      centerTitle: true,
-      title: const Text(
-        'Dodaj uslugu',
-        style: TextStyle(
-            color: Colors.black, fontWeight: 
-            FontWeight.bold, 
-            fontSize: 20
+  Widget _body(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+      child: ListView(
+        children: [
+          _text('Profilna slika'),
+          const SizedBox(
+            height: 5,
           ),
-      ),
-      elevation: 0.0,
-
-      leading: IconButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        icon: const Icon(
-          Icons.arrow_back_ios_new,
-          color: Colors.black,
-        )
+          _profilePictureWidget(),
+          const SizedBox(
+            height: 30,
+          ),
+          _text('Naziv usluge'),
+          const SizedBox(
+            height: 5,
+          ),
+          _textFormField(_imeController, 'Naziv usluge'),
+          const SizedBox(
+            height: 30,
+          ),
+          _text('Tip usluge'),
+          const SizedBox(
+            height: 5,
+          ),
+          DropdownButtonFormField(
+              items: TipUsluge.values
+                  .map((o) => DropdownMenuItem(
+                        value: uslugaToString(o),
+                        child: Text(uslugaToString(o)),
+                      ))
+                  .toList(),
+              value: inputTipUsluge,
+              style: const TextStyle(fontSize: 16, color: Colors.black),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFededed), width: 1)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide(color: primaryColor, width: 2)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFededed), width: 2)),
+              ),
+              onChanged: (String? newValue) {
+                setState(() {
+                  inputTipUsluge = newValue!;
+                });
+              }),
+          const SizedBox(
+            height: 30,
+          ),
+          _text('Grad'),
+          const SizedBox(
+            height: 5,
+          ),
+          DropdownButtonFormField(
+              items: gradovi
+                  .map((o) => DropdownMenuItem(
+                        value: o,
+                        child: Text(o),
+                      ))
+                  .toList(),
+              value: inputImeGrada,
+              style: const TextStyle(fontSize: 16, color: Colors.black),
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFededed), width: 1)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide(color: primaryColor, width: 2)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide:
+                        const BorderSide(color: Color(0xFFededed), width: 2)),
+              ),
+              onChanged: (String? newValue) {
+                setState(() {
+                  inputImeGrada = newValue!;
+                });
+              }),
+          const SizedBox(
+            height: 30,
+          ),
+          _text('Opis'),
+          const SizedBox(
+            height: 5,
+          ),
+          _textFormField(_opisController, 'Opis', expanded: true),
+          const SizedBox(
+            height: 30,
+          ),
+          if (widget.usluga.tipUsluge == TipUsluge.muzika) ...[
+            _text('Promo video'),
+            const SizedBox(
+              height: 5,
+            ),
+            _promoVideo(),
+            const SizedBox(
+              height: 30,
+            ),
+          ],
+          _text('Galerija'),
+          const SizedBox(
+            height: 5,
+          ),
+          _galerija(),
+          const SizedBox(
+            height: 30,
+          ),
+        ],
       ),
     );
   }
 
-  Widget body(BuildContext context) {
-    return Form(
-      key: formKey,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(50, 20, 50, 0),
-        child: ListView(
-          children: [Column(
-            children: [
-              DropdownButtonFormField(
-                items: TipUsluge.values.map((o) => DropdownMenuItem(
-                  value: uslugaToString(o),
-                  child: Text(uslugaToString(o)),
-                )).toList(),
-          
-                value: inputTipUsluge,
-          
-                onChanged: (String? newValue) {
+  Widget _text(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+          color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+    );
+  }
+
+  Widget _profilePictureWidget() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(15),
+      child: Container(
+        color: const Color(0xFFededed),
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: newProfilePicture == null
+                  ? Image.asset(
+                      'assets/icons/lokal.png',
+                      fit: BoxFit.cover,
+                      width: 100,
+                      height: 100,
+                    )
+                  : Image(
+                      image: FileImage(newProfilePicture!),
+                      fit: BoxFit.cover,
+                      width: 100,
+                      height: 100,
+                    ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async {
+                final pickedImage = await pickImageFromGalleryAndCrop();
+
+                if (pickedImage != null) {
                   setState(() {
-                    inputTipUsluge = newValue!;
+                    newProfilePicture = pickedImage;
                   });
                 }
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)))),
+              icon: const Icon(
+                CupertinoIcons.photo,
               ),
-          
-              const SizedBox(height: 20,),
-          
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Ime objekta'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Ovo polje je obavezno';
-                  }
-                  else {
-                    return null;
-                  }
-                },
-                onChanged: (newValue) {
-                  setState(() {
-                    inputNaziv = newValue;
-                  });
-                },
-              ),
-                  
-              const SizedBox(height: 20,),
-
-              Autocomplete(
-                optionsBuilder: (TextEditingValue textEditingValue) {
-                  return gradovi.where((String grad) => 
-                    grad.toLowerCase().contains(textEditingValue.text.toLowerCase())
-                  );
-                },
-              ),
-                  
-              const SizedBox(height: 20,),
-              // this sized box is used to add space between the text field and the button
-          
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Cena'),
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Ovo polje je obavezno';
-                  }
-                  else {
-                    return null;
-                  }
-                },
-                onChanged: (newValue) {
-                  setState(() {
-                    inputCena = newValue;
-                  });
-                },
-              ),
-                  
-              const SizedBox(height: 20,),
-          
-              ElevatedButton(
-                onPressed: () async {
-                  final pickedImage = await pickImageFromGalleryAndCrop();
-                  
-                  setState(() {
-                    pickedProfilePicture = pickedImage;
-                  });
-                }, 
-                child: const Text('Izaberi sliku')
-              ),
-          
-              const SizedBox(height: 20,),
-          
-              if (pickedProfilePicture != null) Image.file(pickedProfilePicture!),
-          
-              const SizedBox(height: 20,),
-              
-              ElevatedButton(
-                onPressed: () async {
-                  if(formKey.currentState!.validate()) {
-                    String id = const Uuid().v4();
-
-                    Usluga noviObjekat = Usluga(id, inputTipUsluge, inputNaziv, inputGrad, inputCena);
-                    await objektiDbRef.child(inputTipUsluge).child(id).set(noviObjekat.toJson());
-
-                    await storageRef.child('$id.${pickedProfilePicture!.path.split('.').last}').putFile(pickedProfilePicture!);
-                  }
-                }, 
-                child: const Text('Dodaj')
-              )
-            ],
-          ),]
+              label: const Text('Izaberi'),
+            )
+          ]),
         ),
       ),
     );
+  }
+
+  TextFormField _textFormField(TextEditingController controller, String hint,
+      {bool expanded = false}) {
+    return TextFormField(
+      controller: controller,
+      style: const TextStyle(fontSize: 16),
+      maxLines: expanded ? 4 : 1,
+      cursorColor: Colors.black,
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+        filled: false,
+        fillColor: const Color(0xFFededed),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: Color(0xFFededed), width: 1)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(color: primaryColor, width: 2)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: Color(0xFFededed), width: 2)),
+      ),
+    );
+  }
+
+  void _showSaveDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            title: const Text('Sačuvaj promene'),
+            content:
+                const Text('Da li ste sigurni da hoćete da sačuvate promene?'),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFededed),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)))),
+                child: const Text('Poništi'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _save();
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFededed),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)))),
+                child: const Text('Sačuvaj'),
+              )
+            ],
+          );
+        });
+  }
+
+  Future<bool> _showCancelDialog() async {
+    final t = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            title: const Text('Odbaci promene'),
+            content:
+                const Text('Da li ste sigurni da hoćete da odbacite promene?'),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context, false);
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFededed),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)))),
+                child: const Text('Poništi'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFededed),
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)))),
+                child: const Text('Odbaci'),
+              )
+            ],
+          );
+        });
+
+    return t!;
+  }
+
+  void _save() async {
+    if (newProfilePicture != null) {
+      await storageRef
+          .child('${widget.usluga.id}.jpg')
+          .putFile(newProfilePicture!);
+
+      String url =
+          await storageRef.child('${widget.usluga.id}.jpg').getDownloadURL();
+
+      setState(() {
+        widget.profilePictureUrl = url;
+      });
+    }
+
+    for (File img in noveGalerijaSlike) {
+      String newImgId = (lastGalerijaImgId + 1).toString();
+      await storageRef
+          .child(auth.currentUser!.uid)
+          .child(newImgId)
+          .putFile(img);
+
+      String url = await storageRef
+          .child(auth.currentUser!.uid)
+          .child(newImgId)
+          .getDownloadURL();
+
+      setState(() {
+        widget.galerijaSlike[newImgId] = url;
+
+        lastGalerijaImgId++;
+      });
+    }
+
+    for (String idObrisaneSlike in obrisaneSlike) {
+      await storageRef
+          .child(auth.currentUser!.uid)
+          .child(idObrisaneSlike)
+          .delete();
+
+      setState(() {
+        widget.galerijaSlike.remove(idObrisaneSlike);
+      });
+    }
+
+    DatabaseReference vlasnikUslugaRef = uslugeRef.child(widget.usluga.id);
+    await vlasnikUslugaRef.child('Ime').set(_imeController.text);
+    await vlasnikUslugaRef.child('Grad').set(_gradController.text);
+    await vlasnikUslugaRef.child('Opis').set(_opisController.text);
+
+    if (stringToUsluga(inputTipUsluge) == TipUsluge.muzika) {
+      vlasnikUslugaRef.child('YtLink').set(_ytController.text);
+    }
+
+    setState(() {
+      widget.usluga.ime = _imeController.text;
+      widget.usluga.grad = _gradController.text;
+      widget.usluga.opis = _opisController.text;
+
+      savedAndExit = true;
+    });
+
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
+
+  Widget _promoVideo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Unesite link videa sa YouTube-a.'),
+        _textFormField(_ytController, 'Link videa')
+      ],
+    );
+  }
+
+  Widget _galerija() {
+    return GridView.count(
+        crossAxisCount: 3,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        mainAxisSpacing: 5,
+        crossAxisSpacing: 5,
+        children: [
+          ...galerijaSlike.entries.map((slika) {
+            String idSlike = slika.key;
+            String url = slika.value;
+
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedGalerijaImg = idSlike;
+                  selectedFileImg = null;
+                });
+              },
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Stack(fit: StackFit.expand, children: [
+                    Image.network(
+                      url,
+                      fit: BoxFit.cover,
+                    ),
+                    if (selectedGalerijaImg == idSlike)
+                      Container(
+                        color: const Color.fromARGB(212, 163, 156, 156),
+                        child: Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedGalerijaImg = null;
+                                  galerijaSlike.remove(idSlike);
+                                  obrisaneSlike.add(idSlike);
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  shape: const CircleBorder()),
+                              child: const Icon(
+                                CupertinoIcons.trash,
+                                color: Color.fromARGB(255, 179, 26, 15),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                  ])),
+            );
+          }),
+          ...noveGalerijaSlike.map((slika) => GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedGalerijaImg = null;
+                    selectedFileImg = slika;
+                  });
+                },
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Stack(fit: StackFit.expand, children: [
+                      Image.file(
+                        slika,
+                        fit: BoxFit.cover,
+                      ),
+                      if (selectedFileImg == slika)
+                        Container(
+                          color: const Color.fromARGB(212, 163, 156, 156),
+                          child: Center(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedFileImg = null;
+                                    noveGalerijaSlike.remove(slika);
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    shape: const CircleBorder()),
+                                child: const Icon(
+                                  CupertinoIcons.trash,
+                                  color: Color.fromARGB(255, 179, 26, 15),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                    ])),
+              )),
+          ElevatedButton(
+            onPressed: () async {
+              final pickedFile = await pickImageFromGalleryAndCrop();
+
+              if (pickedFile != null) {
+                setState(() {
+                  noveGalerijaSlike.add(pickedFile);
+                });
+              }
+            },
+            style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: const Color.fromARGB(255, 238, 238, 238),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.all(10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8))),
+            child: const Icon(CupertinoIcons.add, size: 40),
+          )
+        ]);
   }
 }

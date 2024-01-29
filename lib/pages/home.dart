@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:mts_partyup/data.dart';
+import 'package:mts_partyup/pages/add_objekat.dart';
 import 'package:mts_partyup/pages/bookmark.dart';
 import 'package:mts_partyup/pages/login.dart';
 import 'package:mts_partyup/pages/nalog.dart';
@@ -63,7 +64,6 @@ class _HomeState extends State<Home> {
           pocetakAnimacije[i] = true;
         });
       });
-      
     }
   }
 
@@ -89,15 +89,15 @@ class _HomeState extends State<Home> {
     //   ElevatedButton(
     //     onPressed: () {
     //       Navigator.of(context).push(
-    //         MaterialPageRoute( 
+    //         MaterialPageRoute(
     //           builder: (context) => VlasnikIzmeniProfil(
-    //             usluga: vlasnikUsluga!, 
+    //             usluga: vlasnikUsluga!,
     //             profilePictureUrl: profilePictureUrl!,
     //             galerijaSlike: galerijaUrls,
     //           )
     //         )
     //       );
-    //     }, 
+    //     },
 
     //     child: const Text('Izmeni profil')
     //   )
@@ -110,7 +110,10 @@ class _HomeState extends State<Home> {
             top: sh * 0.06,
             height: sh,
             width: sw,
-            child: Container(color: primaryColor, height: 100,),
+            child: Container(
+              color: primaryColor,
+              height: 100,
+            ),
           ),
           Positioned(
             top: sh * 0.05,
@@ -132,7 +135,11 @@ class _HomeState extends State<Home> {
               onPressed: () {
                 Navigator.of(context).push(
                     MaterialPageRoute(
-                        builder: (context) => const Login()
+                        builder: (context) => UslugaPage(
+                          isOwner: widget.isOwner,
+                          profilePictureUrl: widget.profilePictureUrl!,
+                          usluga: widget.vlasnikUsluga!,
+                        )
                     )
                 );
               }, 
@@ -234,7 +241,8 @@ class _HomeState extends State<Home> {
                       )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: p,
                   child: Image.asset(
@@ -244,7 +252,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-      
+
           //top left
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -265,7 +273,8 @@ class _HomeState extends State<Home> {
                       )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: p,
                   child: Image.asset(
@@ -275,7 +284,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-      
+
           //top right
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -296,7 +305,8 @@ class _HomeState extends State<Home> {
                       )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: EdgeInsets.all(w * 0.17),
                   child: Image.asset(
@@ -306,7 +316,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-      
+
           //left
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -327,7 +337,8 @@ class _HomeState extends State<Home> {
                       )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: EdgeInsets.all(w * 0.17),
                   child: Image.asset(
@@ -337,7 +348,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-      
+
           //right
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -358,7 +369,8 @@ class _HomeState extends State<Home> {
                       )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: EdgeInsets.all(w * 0.17),
                   child: Image.asset(
@@ -368,7 +380,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-      
+
           //bottom
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -389,7 +401,8 @@ class _HomeState extends State<Home> {
                       )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: EdgeInsets.all(w * 0.17),
                   child: Image.asset(
@@ -405,6 +418,7 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+
   AppBar appBar(BuildContext context) {
     return AppBar(
         backgroundColor: Colors.white,
@@ -469,18 +483,16 @@ class _HomeState extends State<Home> {
   }
 }
 
-
-
-
 class Wave extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     var path = Path();
 
     path.lineTo(0, size.height * 0.5);
-    path.quadraticBezierTo(size.width * 0.5, size.height * 0.5 - 100, size.width, size.height * 0.5);
+    path.quadraticBezierTo(size.width * 0.5, size.height * 0.5 - 100,
+        size.width, size.height * 0.5);
     path.lineTo(size.width, 0);
-    
+
     path.close();
 
     return path;

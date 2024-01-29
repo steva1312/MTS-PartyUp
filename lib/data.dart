@@ -125,6 +125,7 @@ class Usluga2 {
   String opis = '';
   String brojTelefona = '';
   String zauzetDatum = '';
+  String adresa = '';
 
   String ytLink = '';
 
@@ -143,6 +144,7 @@ class Usluga2 {
     opis = uslugaSnapshot.child('Opis').value.toString();
     brojTelefona = uslugaSnapshot.child('BrojTelefona').value.toString();
     zauzetDatum = uslugaSnapshot.child('ZauzetDatum').value.toString();
+    adresa = uslugaSnapshot.child('Adresa').value.toString();
 
     if (tipUsluge == TipUsluge.muzika) {
       ytLink = uslugaSnapshot.child('YtLink').value.toString();

@@ -273,7 +273,7 @@ class _UslugaPageState extends State<UslugaPage> {
                       Container(
                         width: 150,
                         child: Text(
-                          'Stanislava Binickog 23 degas degas',
+                          widget.usluga.adresa,
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 13,

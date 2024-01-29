@@ -258,7 +258,7 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide(
-            color: primaryColor,
+            color: Colors.black,
             width: 2
           )
         ),
