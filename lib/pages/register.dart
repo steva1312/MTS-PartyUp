@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:mts_partyup/pages/home.dart';
 import 'package:mts_partyup/pages/login.dart';
 import 'package:mts_partyup/pages/register_owner.dart';
+import 'package:mts_partyup/splash.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -194,7 +194,7 @@ class _RegisterPageState extends State<Register> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
               builder: (context) =>
-                  const Home()), // replace with your home page
+                  const Splash()), // replace with your home page
         );
       }
     } on FirebaseAuthException catch (e) {

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-Color primaryColor = const Color(0xffffe38f);
+Color primaryColor = const Color(0xfffe646f);
 
 enum TipUsluge {
   prostori,

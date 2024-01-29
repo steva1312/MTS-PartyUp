@@ -5,9 +5,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mts_partyup/data.dart';
-import 'package:mts_partyup/pages/home.dart';
-import 'package:uuid/uuid.dart';
 
 class VlasnikIzmeniProfil extends StatefulWidget {
   final Usluga2 usluga;

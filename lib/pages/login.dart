@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mts_partyup/pages/home.dart';
 import 'package:mts_partyup/pages/register.dart';
+import 'package:mts_partyup/splash.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -107,7 +107,7 @@ class _LoginPageState extends State<Login> {
       if (context.mounted) {
         Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const Home()), // replace with your home page
+          MaterialPageRoute(builder: (context) => const Splash()), // replace with your home page
         );
       }
     } on FirebaseAuthException catch (e) {

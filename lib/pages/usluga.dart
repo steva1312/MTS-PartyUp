@@ -1,13 +1,13 @@
-import 'dart:math';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class UslugaPage extends StatefulWidget {
@@ -74,7 +74,6 @@ class _UslugaPageState extends State<UslugaPage> {
   @override
   void initState() {
     super.initState();
-    
     if (widget.usluga.tipUsluge == TipUsluge.muzika) {
       _ytController = YoutubePlayerController(
         initialVideoId: YoutubePlayer.convertUrlToId(widget.usluga.ytLink)!,
@@ -86,7 +85,8 @@ class _UslugaPageState extends State<UslugaPage> {
 
     _setImePrezime();
     loadGalerija();
-    CheckIfSaved();
+
+    if (widget.isOwner == false) CheckIfSaved();
   }
 
   void CheckIfSaved() {
@@ -194,7 +194,7 @@ class _UslugaPageState extends State<UslugaPage> {
           children: [
             _uslugaInfo(),
 
-            const SizedBox(height: 60,),
+            const SizedBox(height: 45,),
 
             if (widget.usluga.tipUsluge == TipUsluge.muzika)
             ...[
@@ -219,212 +219,341 @@ class _UslugaPageState extends State<UslugaPage> {
   }
 
   Widget _uslugaInfo() {
-    return Column(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: FadeInImage.assetNetwork(
-            image: widget.profilePictureUrl,
-            placeholder: 'assets/icons/lokal.png',
-            fit: BoxFit.cover,
-            fadeInDuration: const Duration(milliseconds: 200),
-            fadeOutDuration: const Duration(milliseconds: 200),
-            fadeInCurve: Curves.easeIn,
-            fadeOutCurve: Curves.easeOut,
-            width: 150,
-            height: 150,
-          ),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        Text(
-          widget.usluga.grad,
-          style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        Text(
-          widget.usluga.opis,
-          style: const TextStyle(color: Colors.black, fontSize: 16),
-        ),
-        ElevatedButton(
-            onPressed: () {
-              if (FirebaseAuth.instance.currentUser == null) {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Rezervacija'),
-                        content: const Text(
-                            'Morate biti prijavljeni da biste mogli da rezervišete uslugu'),
-                        actions: [
-                          ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('Ok'))
-                        ],
-                      );
-                    });
-                return;
-              } else if (widget.isOwner == true) {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Rezervacija'),
-                        content: const Text(
-                            'Nije moguće rezervisati uslugu ukoliko ste vlasnik neke usluge'),
-                        actions: [
-                          ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('Ok'))
-                        ],
-                      );
-                    });
-                return;
-              } else {
-                if (widget.usluga.rezervacije.any((r) {
-                  return r.idKorisnika ==
-                          FirebaseAuth.instance.currentUser!.uid &&
-                      r.idUsluge == widget.usluga.id;
-                })) {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          backgroundColor: Colors.white,
-                          title: const Text('Rezervacija'),
-                          content: const Text(
-                              'Već ste rezervisali ovu uslugu. Možete je otkazati u vašem nalogu'),
-                          actions: [
-                            ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('Ok'))
-                          ],
-                        );
-                      });
-                  return;
-                } else {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Rezervacija'),
-                          content: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: SingleChildScrollView(
-                                child: Column(
-                              children: <Widget>[
-                                TextFormField(
-                                  controller: _datumController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Datum',
-                                      border: OutlineInputBorder()),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Unesite datum';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                TextFormField(
-                                  controller: _vremeController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Vreme',
-                                      border: OutlineInputBorder()),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Unesite vreme';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                TextFormField(
-                                  controller: _opisController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Opis',
-                                      border: OutlineInputBorder()),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Unesite opis';
-                                    }
-                                    return null;
-                                  },
-                                )
-                              ],
-                            )),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: FadeInImage.assetNetwork(
+                  image: widget.profilePictureUrl,
+                  placeholder: 'assets/icons/lokal.png',
+                  fit: BoxFit.cover,
+                  fadeInDuration: const Duration(milliseconds: 200),
+                  fadeOutDuration: const Duration(milliseconds: 200),
+                  fadeInCurve: Curves.easeIn,
+                  fadeOutCurve: Curves.easeOut,
+                  width: 120,
+                  height: 120,
+                ),
+              ),
+              const SizedBox(width: 15,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        CupertinoIcons.map_pin,
+                        size: 15,
+                      ),
+                      Text(
+                        widget.usluga.grad,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 15
+                        ),
+                      ),
+                    ] 
+                  ),
+
+                  const SizedBox(height: 5,),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(
+                        Icons.pin_drop,
+                        size: 17,
+                      ),
+                      const SizedBox(width: 2,),
+                      Container(
+                        width: 150,
+                        child: Text(
+                          'Stanislava Binickog 23 degas degas',
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 13,
+                            fontStyle: FontStyle.italic,
                           ),
-                          actions: [
-                            ElevatedButton(
-                                onPressed: () async {
-                                  final IdRezervacije = rezervacijeRef.push();
-                                  IdRezervacije.set({
-                                    'IdKorisnika': auth.currentUser!.uid,
-                                    'IdUsluge': widget.usluga.id,
-                                    'Datum': _datumController.text,
-                                    'Vreme': _vremeController.text,
-                                    'Opis': _opisController.text,
-                                    'Status': 1,
-                                  });
-                                  await uslugeRef
-                                      .child(widget.usluga.id)
-                                      .child('Rezervacije')
-                                      .child(IdRezervacije.key!)
-                                      .set(
-                                        '',
-                                      );
-                                  await uslugeRef
-                                      .child(widget.usluga.id)
-                                      .child('ZauzetDatum')
-                                      .set(_datumController.text);
-                                  await korisniciRef
-                                      .child(auth.currentUser!.uid)
-                                      .child('Rezervacije')
-                                      .child(IdRezervacije.key!)
-                                      .set(
-                                        '',
-                                      );
-                                  Navigator.of(context).pop();
-                                  showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: const Text('Rezervacija'),
-                                          content: const Text(
-                                              'Uspešno ste poslali rezervaciju'),
-                                          actions: [
-                                            ElevatedButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Text('Ok'))
-                                          ],
-                                        );
-                                      });
-                                },
-                                child: const Text('Rezerviši'))
-                          ],
-                        );
-                      });
-                }
-              }
-            },
-            child: const Text('Rezerviši'))
-      ],
+                        ),
+                      ),
+                    ] 
+                  ),
+
+                  const SizedBox(height: 5,),
+
+                  if (widget.usluga.ocene.isNotEmpty)
+                  Row(
+                    children: [
+                      _zvezdiceOcena(widget.usluga.prosecnaOcena.round(), 25),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      const Icon(
+                        Icons.person,
+                        size: 18,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(
+                        width: 2,
+                      ),
+                      Text(
+                        widget.usluga.ocene.length.toString(),
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  )
+
+                  else
+                  const Text(
+                    'Neocenjeno',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 15,
+                      fontStyle: FontStyle.italic),),
+
+                  const SizedBox(
+                    height: 20,
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20,),
+
+          Text(
+            widget.usluga.opis,
+            style: const TextStyle(color: Colors.black, fontSize: 14),
+          ),
+
+          const SizedBox(height: 20,),
+
+          Row(
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  launch('tel://${widget.usluga.brojTelefona}');
+                }, 
+
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10)
+                    )
+                  )
+                ),
+                icon: const Icon(
+                  CupertinoIcons.phone_fill,
+                ),
+                label: const Text('Pozovi'),
+              ),
+
+              const SizedBox(width: 15,),
+
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10)
+                    )
+                  ),
+                ),
+                icon: const Icon(
+                  CupertinoIcons.calendar_badge_plus,
+                ),
+                label: const Text('Zakaži'),
+
+                  onPressed: () {
+                    if (FirebaseAuth.instance.currentUser == null) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Rezervacija'),
+                              content: const Text(
+                                  'Morate biti prijavljeni da biste mogli da rezervišete uslugu.'),
+                              actions: [
+                                ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Ok'))
+                              ],
+                            );
+                          });
+                      return;
+                    } else if (widget.isOwner == true) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text('Rezervacija'),
+                              content: const Text(
+                                  'Nije moguće rezervisati uslugu ukoliko ste vlasnik neke usluge.'),
+                              actions: [
+                                ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Ok'))
+                              ],
+                            );
+                          });
+                      return;
+                    } else {
+                      if (widget.usluga.rezervacije.any((r) {
+                        return r.idKorisnika ==
+                                FirebaseAuth.instance.currentUser!.uid &&
+                            r.idUsluge == widget.usluga.id;
+                      })) {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                backgroundColor: Colors.white,
+                                title: const Text('Rezervacija'),
+                                content: const Text(
+                                    'Već ste rezervisali ovu uslugu. Možete je otkazati u vašem nalogu'),
+                                actions: [
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('Ok'))
+                                ],
+                              );
+                            });
+                        return;
+                      } else {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Rezervacija'),
+                                content: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SingleChildScrollView(
+                                      child: Column(
+                                    children: <Widget>[
+                                      TextFormField(
+                                        controller: _datumController,
+                                        decoration: const InputDecoration(
+                                            labelText: 'Datum',
+                                            border: OutlineInputBorder()),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Unesite datum';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      TextFormField(
+                                        controller: _vremeController,
+                                        decoration: const InputDecoration(
+                                            labelText: 'Vreme',
+                                            border: OutlineInputBorder()),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Unesite vreme';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      TextFormField(
+                                        controller: _opisController,
+                                        decoration: const InputDecoration(
+                                            labelText: 'Opis',
+                                            border: OutlineInputBorder()),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Unesite opis';
+                                          }
+                                          return null;
+                                        },
+                                      )
+                                    ],
+                                  )),
+                                ),
+                                actions: [
+                                  ElevatedButton(
+                                      onPressed: () async {
+                                        final IdRezervacije = rezervacijeRef.push();
+                                        IdRezervacije.set({
+                                          'IdKorisnika': auth.currentUser!.uid,
+                                          'IdUsluge': widget.usluga.id,
+                                          'Datum': _datumController.text,
+                                          'Vreme': _vremeController.text,
+                                          'Opis': _opisController.text,
+                                          'Status': 1,
+                                        });
+                                        await uslugeRef
+                                            .child(widget.usluga.id)
+                                            .child('Rezervacije')
+                                            .child(IdRezervacije.key!)
+                                            .set(
+                                              '',
+                                            );
+                                        await uslugeRef
+                                            .child(widget.usluga.id)
+                                            .child('ZauzetDatum')
+                                            .set(_datumController.text);
+                                        await korisniciRef
+                                            .child(auth.currentUser!.uid)
+                                            .child('Rezervacije')
+                                            .child(IdRezervacije.key!)
+                                            .set(
+                                              '',
+                                            );
+                                        Navigator.of(context).pop();
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: const Text('Rezervacija'),
+                                                content: const Text(
+                                                    'Uspešno ste poslali rezervaciju'),
+                                                actions: [
+                                                  ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: const Text('Ok'))
+                                                ],
+                                              );
+                                            });
+                                      },
+                                      child: const Text('Rezerviši'))
+                                ],
+                              );
+                            });
+                      }
+                    }
+                  },
+              )
+            ],
+          )
+        ],
+      ),
     );
   }
 
@@ -517,7 +646,7 @@ class _UslugaPageState extends State<UslugaPage> {
         effect: ExpandingDotsEffect(
           dotHeight: 13,
           dotWidth: 13, 
-          activeDotColor: Colors.blue,
+          activeDotColor: primaryColor,
           dotColor: Colors.grey[300]!
         ),
         activeIndex: activeIndex,
@@ -662,14 +791,14 @@ class _UslugaPageState extends State<UslugaPage> {
     );
   }
 
-  Widget _zvezdiceOcena(int ocena) {
+  Widget _zvezdiceOcena(int ocena, double size) {
     return Row(
       children: List.generate(
           5,
           (index) => Icon(
                 ocena < index + 1 ? Icons.star_border : Icons.star,
                 color: Colors.yellow[600],
-                size: 25,
+                size: size,
               )).toList(),
     );
   }
@@ -719,7 +848,7 @@ class _UslugaPageState extends State<UslugaPage> {
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 15),
                 ),
-                _zvezdiceOcena(ocena.ocena),
+                _zvezdiceOcena(ocena.ocena, 25),
               ],
             ),
             if (auth.currentUser != null &&
