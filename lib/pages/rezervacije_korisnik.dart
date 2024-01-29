@@ -13,7 +13,6 @@ class RezervacijeKorisnik extends StatefulWidget {
 }
 
 class _RezervacijePageState extends State<RezervacijeKorisnik> {
-
   final rezervacijeRef = FirebaseDatabase.instance.ref('Rezervacije');
   final korisniciRef = FirebaseDatabase.instance.ref('Korisnici');
   final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
@@ -57,6 +56,7 @@ class _RezervacijePageState extends State<RezervacijeKorisnik> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: appbar(context),
       body: body(context),
     );
@@ -86,154 +86,195 @@ class _RezervacijePageState extends State<RezervacijeKorisnik> {
   Widget body(BuildContext context) {
     return ListView(
         children: usluge.map((u) {
-          int i = usluge.indexOf(u);
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                if (rezervacije[i].status == 1) {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Rezervacija'),
-                          content: SingleChildScrollView(
-                            child: ListBody(
-                              children: <Widget>[
-                                Text('Ime: ${u.ime}'),
-                                Text('Datum: ${rezervacije[i].datum}'),
-                                Text('Vreme: ${rezervacije[i].vreme}'),
-                                Text('Broj telefona: ${u.brojTelefona}'),
-                                Text('Opis: ${rezervacije[i].opis}'),
-                              ],
-                            ),
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('Ok'),
-                            ),
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title:
+      int i = usluge.indexOf(u);
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            if (rezervacije[i].status == 1) {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      backgroundColor: Colors.white,
+                      surfaceTintColor: Colors.transparent,
+                      title: const Text('Rezervacija'),
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text('Ime: ${u.ime}'),
+                            Text('Datum: ${rezervacije[i].datum}'),
+                            Text('Vreme: ${rezervacije[i].vreme}'),
+                            Text('Broj telefona: ${u.brojTelefona}'),
+                            Text('Opis: ${rezervacije[i].opis}'),
+                          ],
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFededed),
+                              foregroundColor: Colors.black,
+                              padding:
+                                  const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)))),
+                          child: const Text('Ok'),
+                        ),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      backgroundColor: Colors.white,
+                                      surfaceTintColor: Colors.transparent,
+                                      title:
                                           const Text('Otkazivanje rezervacije'),
-                                          content: const Text(
-                                              'Da li ste sigurni da zelite da otkazete rezervaciju?'),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text('Ne'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                rezervacijeRef
-                                                    .child(rezervacije[i].id)
-                                                    .remove();
-                                                korisniciRef.child(FirebaseAuth
+                                      content: const Text(
+                                          'Da li ste sigurni da zelite da otkazete rezervaciju?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('Ne'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            rezervacijeRef
+                                                .child(rezervacije[i].id)
+                                                .remove();
+                                            korisniciRef
+                                                .child(FirebaseAuth
                                                     .instance.currentUser!.uid)
-                                                    .child('Rezervacije')
-                                                    .child(rezervacije[i].id)
-                                                    .remove();
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text('Da'),
-                                            ),
-                                          ],
-                                        );
-                                      });
-                                },
-                                child: const Text('Otkazi rezervaciju')),
+                                                .child('Rezervacije')
+                                                .child(rezervacije[i].id)
+                                                .remove();
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('Da'),
+                                        ),
+                                      ],
+                                    );
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFededed),
+                                foregroundColor: Colors.black,
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)))),
+                            child: const Text('Otkazi rezervaciju')),
+                      ],
+                    );
+                  });
+            } else if (rezervacije[i].status == 2) {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      backgroundColor: Colors.white,
+                      surfaceTintColor: Colors.transparent,
+                      title: const Text('Rezervacija'),
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text('Ime: ${u.ime}'),
+                            Text('Datum: ${rezervacije[i].datum}'),
+                            Text('Vreme: ${rezervacije[i].vreme}'),
+                            Text('Broj telefona: ${u.brojTelefona}'),
+                            Text('Opis: ${rezervacije[i].opis}'),
                           ],
-                        );
-                      });
-                } else if (rezervacije[i].status == 2) {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Rezervacija'),
-                          content: SingleChildScrollView(
-                            child: ListBody(
-                              children: <Widget>[
-                                Text('Ime: ${u.ime}'),
-                                Text('Datum: ${rezervacije[i].datum}'),
-                                Text('Vreme: ${rezervacije[i].vreme}'),
-                                Text('Broj telefona: ${u.brojTelefona}'),
-                                Text('Opis: ${rezervacije[i].opis}'),
-                              ],
-                            ),
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('Ok'),
-                            ),
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFededed),
+                              foregroundColor: Colors.black,
+                              padding:
+                                  const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)))),
+                          child: const Text('Ok'),
+                        ),
+                      ],
+                    );
+                  });
+            } else {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      backgroundColor: Colors.white,
+                      surfaceTintColor: Colors.transparent,
+                      title: const Text('Rezervacija'),
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            const Text('Vasa rezervacija je odbijena'),
+                            Text('Razlog: ${rezervacije[i].opis}'),
                           ],
-                        );
-                      });
-                } else {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Rezervacija'),
-                          content: SingleChildScrollView(
-                            child: ListBody(
-                              children: <Widget>[
-                                const Text('Vasa rezervacija je odbijena'),
-                                Text('Razlog: ${rezervacije[i].opis}'),
-                              ],
-                            ),
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                korisniciRef
-                                    .child(rezervacije[i].idKorisnika)
-                                    .child('Rezervacije')
-                                    .child(rezervacije[i].id)
-                                    .remove();
-                                rezervacijeRef.child(rezervacije[i].id).remove();
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('Ok'),
-                            ),
-                          ],
-                        );
-                      });
-                }
-              },
-              child: Row(
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            korisniciRef
+                                .child(rezervacije[i].idKorisnika)
+                                .child('Rezervacije')
+                                .child(rezervacije[i].id)
+                                .remove();
+                            rezervacijeRef.child(rezervacije[i].id).remove();
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFededed),
+                              foregroundColor: Colors.black,
+                              padding:
+                                  const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)))),
+                          child: const Text('Ok'),
+                        ),
+                      ],
+                    );
+                  });
+            }
+          },
+          child: Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(usluge[i].ime,
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18)),
-                      Text(usluge[i].brojTelefona,
-                          style:
+                  Text(usluge[i].ime,
+                      style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18)),
+                  Text(usluge[i].brojTelefona,
+                      style:
                           const TextStyle(color: Colors.black, fontSize: 15)),
-                    ],
-                  ),
                 ],
               ),
-            ),
-          );
-        }).toList());
+            ],
+          ),
+        ),
+      );
+    }).toList());
   }
 }

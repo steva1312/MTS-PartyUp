@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mts_partyup/data.dart';
 import 'package:mts_partyup/pages/home.dart';
 import 'package:mts_partyup/pages/register.dart';
 
@@ -38,6 +40,86 @@ class _LoginPageState extends State<Login> {
             color: Colors.black,
           )
       ),
+      actions: [
+        IconButton(
+            onPressed: () {
+              _login(_emailController.text, _passwordController.text);
+            },
+            icon: const Icon(
+              CupertinoIcons.checkmark_alt,
+              color: Colors.black,
+            )
+        ),
+      ],
+    );
+  }
+
+  Widget _body(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+      child: ListView(
+        children: [
+          _text('Email'),
+          const SizedBox(height: 5),
+          _textFormField(_emailController, 'Email'),
+          const SizedBox(height: 30),
+          _text('Sifra'),
+          const SizedBox(height: 5),
+          _textFormField(_passwordController, 'Password'),
+          const SizedBox(height: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const Register()),
+                  );
+                },
+                child: const Text(
+                  'Nemate nalog? Registrujte se',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16),
+                ),
+              ),
+        ],
+      ),
+      ],
+      ),
+    );
+  }
+
+  Widget _text(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+          color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
+    );
+  }
+
+  TextFormField _textFormField(TextEditingController controller, String hint,
+      {bool expanded = false}) {
+    return TextFormField(
+      controller: controller,
+      style: const TextStyle(fontSize: 16),
+      maxLines: expanded ? 4 : 1,
+      obscureText: controller == _passwordController,
+      cursorColor: Colors.black,
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+        filled: false,
+        fillColor: const Color(0xFFededed),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: Color(0xFFededed), width: 1)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(color: primaryColor, width: 2)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: const BorderSide(color: Color(0xFFededed), width: 2)),
+      ),
     );
   }
 
@@ -45,56 +127,7 @@ class _LoginPageState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar(context),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          Form(
-            key: _formKey,
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Unesite email';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Sifra'),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Unesite sifru';
-                    }
-                    return null;
-                  },
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      _login(_emailController.text, _passwordController.text);
-                    }
-                  },
-                  child: const Text('Login'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const Register()), // replace with your register page
-                    );
-                  },
-                  child: const Text("Nemaš nalog? Registruj se!"),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      body: _body(context),
     );
   }
 

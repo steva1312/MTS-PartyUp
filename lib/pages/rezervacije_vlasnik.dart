@@ -109,6 +109,7 @@ class _RezervacijePageState extends State<RezervacijeVlasnik> {
                     builder: (BuildContext context) {
                       return AlertDialog(
                         backgroundColor: Colors.white,
+                        surfaceTintColor: Colors.transparent,
                         title: const Text('Rezervacija'),
                         content: SingleChildScrollView(
                           child: ListBody(
@@ -124,6 +125,14 @@ class _RezervacijePageState extends State<RezervacijeVlasnik> {
                         ),
                         actions: <Widget>[
                           ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFededed),
+                                foregroundColor: Colors.black,
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)))),
                             child: const Text('Prihvati'),
                             onPressed: () {
                               r.status = 2;
@@ -132,6 +141,14 @@ class _RezervacijePageState extends State<RezervacijeVlasnik> {
                             },
                           ),
                           ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFededed),
+                                foregroundColor: Colors.black,
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)))),
                             child: const Text('Odbij'),
                             onPressed: () {
                               r.status = 3;
@@ -142,6 +159,7 @@ class _RezervacijePageState extends State<RezervacijeVlasnik> {
                                 builder: (BuildContext context) {
                                   return AlertDialog(
                                     backgroundColor: Colors.white,
+                                    surfaceTintColor: Colors.transparent,
                                     title: const Text('Rezervacija'),
                                     content: SingleChildScrollView(
                                       child: ListBody(
@@ -163,17 +181,33 @@ class _RezervacijePageState extends State<RezervacijeVlasnik> {
                                     ),
                                     actions: <Widget>[
                                       ElevatedButton(
-                                        child: const Text('Ok'),
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color(0xFFededed),
+                                            foregroundColor: Colors.black,
+                                            padding: const EdgeInsets.fromLTRB(
+                                                20, 15, 20, 15),
+                                            shape: const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10)))),
                                         onPressed: () {
                                           uslugeRef
                                               .child(r.idUsluge)
                                               .child('Rezervacije')
                                               .child(r.id)
                                               .remove();
-                                          uslugeRef.child(r.idUsluge).child('ZauzetDatum').child(r.datum).remove();
-                                          rezervacijeRef.child(r.id).child('Opis').set(_razlogController.text);
+                                          uslugeRef
+                                              .child(r.idUsluge)
+                                              .child('ZauzetDatum')
+                                              .child(r.datum)
+                                              .remove();
+                                          rezervacijeRef
+                                              .child(r.id)
+                                              .child('Opis')
+                                              .set(_razlogController.text);
                                           Navigator.of(context).pop();
                                         },
+                                        child: const Text('Ok'),
                                       ),
                                     ],
                                   );
@@ -205,6 +239,14 @@ class _RezervacijePageState extends State<RezervacijeVlasnik> {
                         ),
                         actions: <Widget>[
                           ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFededed),
+                                foregroundColor: Colors.black,
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 15, 20, 15),
+                                shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)))),
                             child: const Text('Ok'),
                             onPressed: () {
                               Navigator.of(context).pop();
@@ -227,7 +269,7 @@ class _RezervacijePageState extends State<RezervacijeVlasnik> {
                             fontSize: 18)),
                     Text(brojTelefona[i],
                         style:
-                        const TextStyle(color: Colors.black, fontSize: 15)),
+                            const TextStyle(color: Colors.black, fontSize: 15)),
                   ],
                 ),
               ],

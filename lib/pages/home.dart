@@ -3,6 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mts_partyup/data.dart';
+import 'package:mts_partyup/pages/add_objekat.dart';
 import 'package:mts_partyup/pages/bookmark.dart';
 import 'package:mts_partyup/pages/login.dart';
 import 'package:mts_partyup/pages/nalog.dart';
@@ -22,7 +23,7 @@ class _HomeState extends State<Home> {
   final rezervacijeRef = FirebaseDatabase.instance.ref('Rezervacije');
   final storageRef = FirebaseStorage.instance.ref();
   final auth = FirebaseAuth.instance;
-  
+
   //promenljive ako je vlasnik logovan
   bool? isOwner;
   Usluga2? vlasnikUsluga;
@@ -51,7 +52,6 @@ class _HomeState extends State<Home> {
           pocetakAnimacije[i] = true;
         });
       });
-      
     }
   }
 
@@ -63,13 +63,14 @@ class _HomeState extends State<Home> {
     });
 
     await uslugeRef.once().then((event) async {
-        List<Usluga2> ucitaneUsluge = [];
+      List<Usluga2> ucitaneUsluge = [];
 
-      for(DataSnapshot uslugaSnapshot in event.snapshot.children) {
+      for (DataSnapshot uslugaSnapshot in event.snapshot.children) {
         Usluga2 u = Usluga2.fromSnapshot(uslugaSnapshot, rezervacijeSnapshot!);
         ucitaneUsluge.add(u);
 
-        final profilePictureUrl = await storageRef.child('${u.id}.jpg').getDownloadURL();
+        final profilePictureUrl =
+            await storageRef.child('${u.id}.jpg').getDownloadURL();
 
         setState(() {
           profilePicturesUrls[u.id] = profilePictureUrl;
@@ -77,19 +78,18 @@ class _HomeState extends State<Home> {
       }
 
       setState(() {
-        for(Usluga2 u in ucitaneUsluge) {
+        for (Usluga2 u in ucitaneUsluge) {
           usluge.add(u);
         }
       });
     });
 
-    
     if (auth.currentUser == null) return;
 
     final event = await uslugeRef
         .child(auth.currentUser!.uid)
         .once(DatabaseEventType.value);
-    
+
     setState(() {
       isOwner = event.snapshot.exists;
 
@@ -97,23 +97,26 @@ class _HomeState extends State<Home> {
         uslugeRef.child(auth.currentUser!.uid).once().then((event) async {
           Map<String, String> loadedGalerijaUrls = {};
 
-          await storageRef.child(auth.currentUser!.uid).listAll().then((value) async {
+          await storageRef
+              .child(auth.currentUser!.uid)
+              .listAll()
+              .then((value) async {
             for (var item in value.items) {
               String galerijaUrl = await item.getDownloadURL();
               loadedGalerijaUrls[item.name] = galerijaUrl;
             }
           });
-          
+
           setState(() {
-            galerijaUrls = Map.fromEntries(
-              loadedGalerijaUrls.entries.toList()..sort((a, b) {
+            galerijaUrls = Map.fromEntries(loadedGalerijaUrls.entries.toList()
+              ..sort((a, b) {
                 return int.parse(a.key).compareTo(int.parse(b.key));
-              })
-            );
+              }));
 
             profilePictureUrl = profilePicturesUrls[auth.currentUser!.uid];
 
-            vlasnikUsluga = usluge.where((u) => u.id == auth.currentUser!.uid).first;
+            vlasnikUsluga =
+                usluge.where((u) => u.id == auth.currentUser!.uid).first;
           });
         });
       }
@@ -142,15 +145,15 @@ class _HomeState extends State<Home> {
     //   ElevatedButton(
     //     onPressed: () {
     //       Navigator.of(context).push(
-    //         MaterialPageRoute( 
+    //         MaterialPageRoute(
     //           builder: (context) => VlasnikIzmeniProfil(
-    //             usluga: vlasnikUsluga!, 
+    //             usluga: vlasnikUsluga!,
     //             profilePictureUrl: profilePictureUrl!,
     //             galerijaSlike: galerijaUrls,
     //           )
     //         )
     //       );
-    //     }, 
+    //     },
 
     //     child: const Text('Izmeni profil')
     //   )
@@ -159,12 +162,14 @@ class _HomeState extends State<Home> {
       color: Colors.white,
       child: Stack(
         children: [
-
           Positioned(
             top: sh * 0.06,
             height: sh,
             width: sw,
-            child: Container(color: primaryColor, height: 100,),
+            child: Container(
+              color: primaryColor,
+              height: 100,
+            ),
           ),
           Positioned(
             top: sh * 0.05,
@@ -178,11 +183,15 @@ class _HomeState extends State<Home> {
 
           Positioned(
             top: 0,
-            child: ElevatedButton(onPressed: () {
-              Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) =>
-                         VlasnikIzmeniProfil(usluga: vlasnikUsluga!, profilePictureUrl: profilePictureUrl!, galerijaSlike: galerijaUrls)));
-            }, child: const Text('Uredi')),
+            child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => VlasnikIzmeniProfil(
+                          usluga: vlasnikUsluga!,
+                          profilePictureUrl: profilePictureUrl!,
+                          galerijaSlike: galerijaUrls)));
+                },
+                child: const Text('Uredi')),
           ),
 
           //center
@@ -195,17 +204,17 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[0] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                      Usluge2(
-                        tipUsluge: TipUsluge.prostori,
-                        usluge: usluge,
-                        profilePicturesUrls: profilePicturesUrls,
-                        isOwner: isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.prostori,
+                          usluge: usluge,
+                          profilePicturesUrls: profilePicturesUrls,
+                          isOwner: isOwner,
+                        )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: p,
                   child: Image.asset(
@@ -215,7 +224,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-      
+
           //top left
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -226,17 +235,17 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[1] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                    Usluge2(
-                        tipUsluge: TipUsluge.muzika,
-                        usluge: usluge,
-                        profilePicturesUrls: profilePicturesUrls,
-                        isOwner: isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.muzika,
+                          usluge: usluge,
+                          profilePicturesUrls: profilePicturesUrls,
+                          isOwner: isOwner,
+                        )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: p,
                   child: Image.asset(
@@ -246,7 +255,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-      
+
           //top right
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -257,17 +266,17 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[2] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                    Usluge2(
-                        tipUsluge: TipUsluge.fotografi,
-                        usluge: usluge,
-                        profilePicturesUrls: profilePicturesUrls,
-                        isOwner: isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.fotografi,
+                          usluge: usluge,
+                          profilePicturesUrls: profilePicturesUrls,
+                          isOwner: isOwner,
+                        )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: EdgeInsets.all(w * 0.17),
                   child: Image.asset(
@@ -277,7 +286,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-      
+
           //left
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -288,17 +297,17 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[5] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                    Usluge2(
-                        tipUsluge: TipUsluge.torte,
-                        usluge: usluge,
-                        profilePicturesUrls: profilePicturesUrls,
-                        isOwner: isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.torte,
+                          usluge: usluge,
+                          profilePicturesUrls: profilePicturesUrls,
+                          isOwner: isOwner,
+                        )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: EdgeInsets.all(w * 0.17),
                   child: Image.asset(
@@ -308,7 +317,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-      
+
           //right
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -319,17 +328,17 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[3] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                    Usluge2(
-                        tipUsluge: TipUsluge.ketering,
-                        usluge: usluge,
-                        profilePicturesUrls: profilePicturesUrls,
-                        isOwner: isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.ketering,
+                          usluge: usluge,
+                          profilePicturesUrls: profilePicturesUrls,
+                          isOwner: isOwner,
+                        )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: EdgeInsets.all(w * 0.17),
                   child: Image.asset(
@@ -339,7 +348,7 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-      
+
           //bottom
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -350,17 +359,17 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[4] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                    Usluge2(
-                        tipUsluge: TipUsluge.dekoracije,
-                        usluge: usluge,
-                        profilePicturesUrls: profilePicturesUrls,
-                        isOwner: isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.dekoracije,
+                          usluge: usluge,
+                          profilePicturesUrls: profilePicturesUrls,
+                          isOwner: isOwner,
+                        )));
               },
               child: Container(
-                decoration: BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: ikonicaColor),
                 child: Padding(
                   padding: EdgeInsets.all(w * 0.17),
                   child: Image.asset(
@@ -374,6 +383,7 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+
   AppBar appBar(BuildContext context) {
     return AppBar(
         backgroundColor: Colors.white,
@@ -392,7 +402,7 @@ class _HomeState extends State<Home> {
             } else {
               Navigator.of(context)
                   .push(MaterialPageRoute(builder: (context) => const Nalog()));
-            } 
+            }
           },
           icon: const Icon(
             Icons.person,
@@ -418,7 +428,7 @@ class _HomeState extends State<Home> {
               }
             },
             icon: Icon(
-              isOwner == true ? Icons.format_list_bulleted : Icons.bookmark,
+              isOwner == true ? Icons.calendar_month : Icons.bookmark,
               color: Colors.black,
             ),
           ),
@@ -426,18 +436,16 @@ class _HomeState extends State<Home> {
   }
 }
 
-
-
-
 class Wave extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     var path = Path();
 
     path.lineTo(0, size.height * 0.5);
-    path.quadraticBezierTo(size.width * 0.5, size.height * 0.5 - 100, size.width, size.height * 0.5);
+    path.quadraticBezierTo(size.width * 0.5, size.height * 0.5 - 100,
+        size.width, size.height * 0.5);
     path.lineTo(size.width, 0);
-    
+
     path.close();
 
     return path;
