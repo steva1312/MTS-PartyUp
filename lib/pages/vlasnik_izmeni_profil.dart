@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mts_partyup/data.dart';
+import 'package:mts_partyup/pages/home.dart';
 import 'package:uuid/uuid.dart';
 
 class VlasnikIzmeniProfil extends StatefulWidget {
@@ -45,6 +46,8 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
 
   int lastGalerijaImgId = 0;
 
+  bool savedAndExit = false;
+
   @override void initState() {
     super.initState();
 
@@ -55,6 +58,7 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
 
       if (widget.galerijaSlike.isNotEmpty) {
         lastGalerijaImgId = int.parse(widget.galerijaSlike.entries.last.key);
+        print(lastGalerijaImgId);
       }
     });
 
@@ -65,48 +69,54 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        title: const Text(
-          'Izmeni profil',
-          style: TextStyle(
-              color: Colors.black, fontWeight: 
-              FontWeight.bold, 
-              fontSize: 20
-            ),
-        ),
-        elevation: 0.0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.close_outlined, 
-            size: 33,
+    return WillPopScope(
+      onWillPop: () async {
+        return await _showCancelDialog();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          centerTitle: true,
+          title: const Text(
+            'Izmeni profil',
+            style: TextStyle(
+                color: Colors.black, fontWeight: 
+                FontWeight.bold, 
+                fontSize: 20
+              ),
           ),
-          onPressed: () {
-            _showCancelDialog();
-          },
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              _showSaveDialog();
-            },
+          elevation: 0.0,
+          leading: IconButton(
             icon: const Icon(
-              CupertinoIcons.checkmark_alt,
+              Icons.close_outlined, 
               size: 33,
             ),
+            onPressed: () async {
+              final t = await _showCancelDialog(); 
+              if (t) Navigator.of(context).pop();
+            },
           ),
-        ]
+          actions: [
+            IconButton(
+              onPressed: () {
+                _showSaveDialog();
+              },
+              icon: const Icon(
+                CupertinoIcons.checkmark_alt,
+                size: 33,
+              ),
+            ),
+          ]
+        ),
+        body: _body(context),
+        backgroundColor: Colors.white,
       ),
-      body: _body(context),
-      backgroundColor: Colors.white,
     );
   }
 
   Widget _body(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
+      padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
       child: ListView(
         children: [
           _text('Profilna slika'),
@@ -248,8 +258,8 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(
-            color:  Colors.black,
+          borderSide: BorderSide(
+            color: primaryColor,
             width: 2
           )
         ),
@@ -317,8 +327,8 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
     );
   }
 
-  void _showCancelDialog() {
-    showDialog(
+  Future<bool> _showCancelDialog() async {
+    final t = await showDialog<bool>(
       context: context, 
       builder: (context) {
         return AlertDialog(
@@ -329,7 +339,7 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context, false);
               }, 
 
               style: ElevatedButton.styleFrom(
@@ -348,8 +358,7 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
 
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
 
               style: ElevatedButton.styleFrom(
@@ -369,6 +378,8 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
         );
       }
     );
+
+    return t!;
   }
   
   void _save() async {
@@ -417,6 +428,8 @@ class _VlasnikIzmeniProfilState extends State<VlasnikIzmeniProfil> {
       widget.usluga.ime = _imeController.text;
       widget.usluga.grad = _gradController.text;
       widget.usluga.opis = _opisController.text;
+
+      savedAndExit = true;
     });
 
     Navigator.pop(context);

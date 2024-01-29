@@ -8,10 +8,16 @@ import 'package:mts_partyup/pages/usluga.dart';
 
 class Usluge2 extends StatefulWidget {
   final TipUsluge tipUsluge;
+  final List<Usluga2> usluge;
+  final Map<String, String> profilePicturesUrls;
+  final bool? isOwner;
 
   const Usluge2({
     super.key, 
-    required this.tipUsluge
+    required this.tipUsluge,
+    required this.usluge,
+    required this.profilePicturesUrls,
+    required this.isOwner
   });
 
   @override
@@ -19,53 +25,27 @@ class Usluge2 extends StatefulWidget {
 }
 
 class _Usluge2State extends State<Usluge2> {
-  final uslugeRef = FirebaseDatabase.instance.ref('Usluge');
-  final storageRef = FirebaseStorage.instance.ref();
-  final rezervacijeRef = FirebaseDatabase.instance.ref('Rezervacije');
-  DataSnapshot? rezervacijeSnapshot;
   bool? isOwner;
 
   String text = 'Usluge';
-  List<Usluga2> usluge = [];
-  Map<String, String> profilePicturesUrls = {};
+
+  List<Usluga2> filtriraneUsluge = [];
 
   @override
   void initState() {
     super.initState();
-    getDataFromDB();
+    filterUsluge();
     setIsOwner();
   }
 
-  void getDataFromDB() {
-    rezervacijeRef.once().then((event) {
-      setState(() {
-        rezervacijeSnapshot = event.snapshot;
-      });
-    });
-
-    uslugeRef.once().then((event) async {
-
-      List<Usluga2> ucitaneUsluge = [];
-
-      for(DataSnapshot uslugaSnapshot in event.snapshot.children) {
-        if (uslugaSnapshot.child('TipUsluge').value.toString() != uslugaToString(widget.tipUsluge)) continue;
-
-        Usluga2 u = Usluga2.fromSnapshot(uslugaSnapshot, rezervacijeSnapshot!);
-        ucitaneUsluge.add(u);
-
-        final profilePictureUrl = await storageRef.child('${u.id}.jpg').getDownloadURL();
-
+  void filterUsluge() {
+    for (Usluga2 usluga in widget.usluge) {
+      if (usluga.tipUsluge == widget.tipUsluge) {
         setState(() {
-          profilePicturesUrls[u.id] = profilePictureUrl;
+          filtriraneUsluge.add(usluga);
         });
       }
-
-      setState(() {
-        for(Usluga2 u in ucitaneUsluge) {
-          usluge.add(u);
-        }
-      });
-    });
+    }
   }
 
   void setIsOwner() async {
@@ -120,7 +100,7 @@ class _Usluge2State extends State<Usluge2> {
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: ListView(
-        children: usluge.map((u) => 
+        children: filtriraneUsluge.map((u) => 
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
             child: Column(
@@ -132,7 +112,7 @@ class _Usluge2State extends State<Usluge2> {
                     Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) => UslugaPage(
                         usluga: u, 
-                        profilePictureUrl: profilePicturesUrls[u.id]!,
+                        profilePictureUrl: widget.profilePicturesUrls[u.id]!,
                         isOwner: isOwner,
                       ))
                     );
@@ -144,7 +124,7 @@ class _Usluge2State extends State<Usluge2> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: FadeInImage.assetNetwork(
-                          image: profilePicturesUrls[u.id]!,
+                          image: widget.profilePicturesUrls[u.id]!,
                           placeholder: 'assets/icons/lokal.png',
                           fit: BoxFit.cover,
                           fadeInDuration: const Duration(milliseconds: 200),
@@ -238,7 +218,7 @@ class _Usluge2State extends State<Usluge2> {
 
                 const SizedBox(height: 15,),
 
-                if (usluge.indexOf(u) != usluge.length - 1)
+                if (widget.usluge.indexOf(u) != widget.usluge.length - 1)
                   Divider(
                     color: Colors.grey[200],
                   ),
