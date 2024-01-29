@@ -10,11 +10,13 @@ import 'package:mts_partyup/pages/home.dart';
 class RegisterOwner extends StatefulWidget {
   final String email;
   final String password;
+  final String brojTelefona;
 
   const RegisterOwner({
     super.key,
     required this.email,
     required this.password,
+    required this.brojTelefona,
   });
 
   @override
@@ -29,9 +31,8 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _brojTelefonaController = TextEditingController();
   String inputTipUsluge = uslugaToString(TipUsluge.values[0]);
-  String inputImeGrada = gradovi[0];
+  String inputImeGrada = gradovi[1];
   File? pickedProfilePicture;
   final storageRef = FirebaseStorage.instance.ref();
 
@@ -105,17 +106,6 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Unesite ime';
-                    }
-                    return null;
-                  },
-                ),
-
-                TextFormField(
-                  controller: _brojTelefonaController,
-                  decoration: const InputDecoration(labelText: 'Broj telefona'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Unesite broj telefona';
                     }
                     return null;
                   },
@@ -197,10 +187,11 @@ class _RegisterOwnerPageState extends State<RegisterOwner> {
         'Email': email,
         'Opis': _descriptionController.text,
         'TipUsluge': inputTipUsluge,
-        'BrojTelefona': '',
+        'BrojTelefona': widget.brojTelefona,
       });
 
       if (context.mounted) {
+        Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (
               context) => const Home()), // replace with your home page

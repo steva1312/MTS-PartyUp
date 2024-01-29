@@ -9,11 +9,7 @@ class Register extends StatefulWidget {
   const Register({super.key});
 
   @override
-
-
   _RegisterPageState createState() => _RegisterPageState();
-
-
 }
 
 class _RegisterPageState extends State<Register> {
@@ -33,13 +29,9 @@ class _RegisterPageState extends State<Register> {
       title: const Text(
         'Register',
         style: TextStyle(
-            color: Colors.black, fontWeight:
-        FontWeight.bold,
-            fontSize: 20
-        ),
+            color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
       ),
       elevation: 0.0,
-
       leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -47,8 +39,7 @@ class _RegisterPageState extends State<Register> {
           icon: const Icon(
             Icons.arrow_back_ios_new,
             color: Colors.black,
-          )
-      ),
+          )),
     );
   }
 
@@ -79,6 +70,16 @@ class _RegisterPageState extends State<Register> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Unesite prezime';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _brojTelefonaController,
+                  decoration: const InputDecoration(labelText: 'Broj telefona'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Unesite broj telefona';
                     }
                     return null;
                   },
@@ -115,18 +116,9 @@ class _RegisterPageState extends State<Register> {
                     if (value == null || value.isEmpty) {
                       return 'Potvrdite sifru';
                     }
-                    if (_passwordController.text != _confirmPasswordController.text) {
+                    if (_passwordController.text !=
+                        _confirmPasswordController.text) {
                       return 'Sifre se ne poklapaju';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _brojTelefonaController,
-                  decoration: const InputDecoration(labelText: 'Broj telefona'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Unesite broj telefona';
                     }
                     return null;
                   },
@@ -139,12 +131,16 @@ class _RegisterPageState extends State<Register> {
                       _isOwner = newValue ?? false;
                     });
                   },
-                  controlAffinity: ListTileControlAffinity.leading,  //  <-- leading Checkbox
+                  controlAffinity:
+                      ListTileControlAffinity.leading, //  <-- leading Checkbox
                 ),
                 ElevatedButton(
                   onPressed: () {
+                    Navigator.of(context).pop();
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => Login()), // replace with your login page
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const Login()), // replace with your login page
                     );
                   },
                   child: const Text('Već imaš nalog? Prijavi se!'),
@@ -152,14 +148,19 @@ class _RegisterPageState extends State<Register> {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
-                      if(_isOwner) {
+                      if (_isOwner) {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => RegisterOwner(email: _emailController.text, password: _passwordController.text,), // replace with your home page
+                          MaterialPageRoute(
+                            builder: (context) => RegisterOwner(
+                              email: _emailController.text,
+                              password: _passwordController.text,
+                              brojTelefona: _brojTelefonaController.text,
+                            ), // replace with your home page
                           ),
                         );
-                      }
-                      else {
-                        _register(_emailController.text, _passwordController.text);
+                      } else {
+                        _register(
+                            _emailController.text, _passwordController.text);
                       }
                     }
                   },
@@ -179,17 +180,21 @@ class _RegisterPageState extends State<Register> {
         email: email,
         password: password,
       );
-      FirebaseDatabase.instance.ref('Korisnici').child(
-          FirebaseAuth.instance.currentUser!.uid).set({
-          'Ime': _nameController.text,
-          'Prezime': _surnameController.text,
-          'Email': _emailController.text,
-          'BrojTelefona': _brojTelefonaController.text,
+      FirebaseDatabase.instance
+          .ref('Korisnici')
+          .child(FirebaseAuth.instance.currentUser!.uid)
+          .set({
+        'Ime': _nameController.text,
+        'Prezime': _surnameController.text,
+        'Email': _emailController.text,
+        'BrojTelefona': _brojTelefonaController.text,
       });
       if (context.mounted) {
+        Navigator.of(context).pop();
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (
-              context) => const Home()), // replace with your home page
+          MaterialPageRoute(
+              builder: (context) =>
+                  const Home()), // replace with your home page
         );
       }
     } on FirebaseAuthException catch (e) {

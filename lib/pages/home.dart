@@ -182,8 +182,7 @@ class _HomeState extends State<Home> {
               Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) =>
                          VlasnikIzmeniProfil(usluga: vlasnikUsluga!, profilePictureUrl: profilePictureUrl!, galerijaSlike: galerijaUrls)));
-
-            }, child: Text('Uredi')),
+            }, child: const Text('Uredi')),
           ),
 
           //center
@@ -419,7 +418,7 @@ class _HomeState extends State<Home> {
               }
             },
             icon: Icon(
-              isOwner == true ? Icons.next_plan_outlined : Icons.bookmark,
+              isOwner == true ? Icons.format_list_bulleted : Icons.bookmark,
               color: Colors.black,
             ),
           ),

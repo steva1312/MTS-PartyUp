@@ -17,7 +17,7 @@ enum TipUsluge {
 }
 
 String uslugaToString(TipUsluge tipObjekta) {
-  switch(tipObjekta) {
+  switch (tipObjekta) {
     case TipUsluge.prostori:
       return 'Prostori';
     case TipUsluge.muzika:
@@ -34,7 +34,7 @@ String uslugaToString(TipUsluge tipObjekta) {
 }
 
 TipUsluge stringToUsluga(String tipObjekta) {
-  switch(tipObjekta) {
+  switch (tipObjekta) {
     case 'Prostori':
       return TipUsluge.prostori;
     case 'Muzika':
@@ -53,7 +53,7 @@ TipUsluge stringToUsluga(String tipObjekta) {
 }
 
 String engToSrbMonthConverter(String day) {
-  switch(day) {
+  switch (day) {
     case 'Jan':
       return 'Januar';
     case 'Feb':
@@ -84,7 +84,7 @@ String engToSrbMonthConverter(String day) {
 }
 
 String engToSrbDayConverter(String day) {
-  switch(day) {
+  switch (day) {
     case 'Mon':
       return 'Pon';
     case 'Tue':
@@ -113,40 +113,39 @@ class Usluga {
 
   Usluga(this.id, this.tipUsluge, this.naziv, this.grad, this.cena);
 
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "naziv": naziv,
-    "grad": grad,
-    "cena": cena
-  };
+  Map<String, dynamic> toJson() =>
+      {"id": id, "naziv": naziv, "grad": grad, "cena": cena};
 }
 
 class Usluga2 {
   String id = '';
   TipUsluge tipUsluge = TipUsluge.prostori;
-  String ime= '';
+  String ime = '';
   String grad = '';
   String opis = '';
   String brojTelefona = '';
+  String zauzetDatum = '';
 
   String ytLink = '';
 
-  double prosecnaOcena = 0; 
+  double prosecnaOcena = 0;
 
   List<Ocena> ocene = [];
   List<Rezervacija> rezervacije = [];
 
-  Usluga2.fromSnapshot(DataSnapshot uslugaSnapshot, DataSnapshot rezervacijeSnapshot) {
+  Usluga2.fromSnapshot(
+      DataSnapshot uslugaSnapshot, DataSnapshot rezervacijeSnapshot) {
     id = uslugaSnapshot.key!;
-    tipUsluge = stringToUsluga(uslugaSnapshot.child('TipUsluge').value.toString());
+    tipUsluge =
+        stringToUsluga(uslugaSnapshot.child('TipUsluge').value.toString());
     ime = uslugaSnapshot.child('Ime').value.toString();
     grad = uslugaSnapshot.child('Grad').value.toString();
     opis = uslugaSnapshot.child('Opis').value.toString();
     brojTelefona = uslugaSnapshot.child('BrojTelefona').value.toString();
+    zauzetDatum = uslugaSnapshot.child('ZauzetDatum').value.toString();
 
     if (tipUsluge == TipUsluge.muzika) {
       ytLink = uslugaSnapshot.child('YtLink').value.toString();
-      print(ytLink);
     }
 
     for (DataSnapshot ocenaSnapshot in uslugaSnapshot.child('Ocene').children) {
@@ -159,7 +158,8 @@ class Usluga2 {
 
     for (DataSnapshot rezervacijaSnapshot in rezervacijeSnapshot.children) {
       print(rezervacijaSnapshot.child('IdUsluge').value.toString());
-      if (id != rezervacijaSnapshot.child('IdUsluge').value.toString()) continue;
+      if (id != rezervacijaSnapshot.child('IdUsluge').value.toString())
+        continue;
       rezervacije.add(Rezervacija.fromSnapshot(rezervacijaSnapshot));
     }
   }
@@ -181,7 +181,7 @@ class Rezervacija {
     idKorisnika = snapshot.child('IdKorisnika').value.toString();
     idUsluge = snapshot.child('IdUsluge').value.toString();
     opis = snapshot.child('Opis').value.toString();
-    status = 1;
+    status = int.parse(snapshot.child('Status').value.toString());
   }
 }
 
@@ -197,11 +197,9 @@ class Ocena {
   Ocena.fromSnapshot(DataSnapshot snapshot) {
     idKorisnika = snapshot.key!;
     ocena = int.parse(snapshot.child('Ocena').value.toString());
-    print(ocena);
     komentar = snapshot.child('Komentar').value.toString();
     //imePrezime se odredjuje u usluga.dart zbog optimizacije
   }
-
 
   Future<void> postaviImePrezime(DatabaseReference korisniciRef) async {
     await korisniciRef.child(idKorisnika).once().then((event) {
@@ -213,74 +211,112 @@ class Ocena {
   }
 
   Map<String, dynamic> toJson() => {
-    "Ocena": ocena,
-    "Komentar": komentar,
-  };
+        "Ocena": ocena,
+        "Komentar": komentar,
+      };
 }
 
 Future<File?> pickImageFromGallery() async {
-  final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+  final pickedImage =
+      await ImagePicker().pickImage(source: ImageSource.gallery);
 
-  if(pickedImage == null) return null;
+  if (pickedImage == null) return null;
 
   return File(pickedImage.path);
 }
 
 Future<File?> pickImageFromGalleryAndCrop() async {
-  final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+  final pickedImage =
+      await ImagePicker().pickImage(source: ImageSource.gallery);
 
-  if(pickedImage == null) return null;
+  if (pickedImage == null) return null;
 
   final croppedImage = await ImageCropper().cropImage(
-    sourcePath: pickedImage.path,
-    aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-    aspectRatioPresets: [CropAspectRatioPreset.square],
-    compressQuality: 70,
-    compressFormat: ImageCompressFormat.jpg,
-    uiSettings: [
-      AndroidUiSettings(
-        toolbarTitle: 'Podesi sliku'
-      ),
-      IOSUiSettings(
-        title: 'Podesi sliku',
+      sourcePath: pickedImage.path,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      aspectRatioPresets: [CropAspectRatioPreset.square],
+      compressQuality: 70,
+      compressFormat: ImageCompressFormat.jpg,
+      uiSettings: [
+        AndroidUiSettings(toolbarTitle: 'Podesi sliku'),
+        IOSUiSettings(
+          title: 'Podesi sliku',
+        )
+      ]);
 
-      )
-    ]
-  );
-
-  if(croppedImage == null) return null;
+  if (croppedImage == null) return null;
 
   return File(croppedImage.path);
 }
 
 List<String> gradovi = [
+  '',
+  'Apatin',
+  'Aranđelovac',
+  'Bačka Palanka',
+  'Bački Jarak',
+  'Bački Petrovac',
+  'Babušnica',
   'Beograd',
+  'Bela Crkva',
+  'Bogatić',
   'Bor',
+  'Brus',
   'Valjevo',
+  'Velika Plana',
+  'Vladimirci',
   'Vranje',
+  'Vrbas',
   'Vršac',
+  'Gornji Milanovac',
+  'Dimitrovgrad',
   'Zaječar',
   'Zrenjanin',
+  'Inđija',
   'Jagodina',
   'Kikinda',
-  'Kragujevac',
   'Kraljevo',
+  'Kragujevac',
   'Kruševac',
+  'Kučevo',
+  'Laćarak',
+  'Lapovo',
   'Leskovac',
   'Loznica',
+  'Lučani',
+  'Majdanpek',
+  'Mali Zvornik',
+  'Mladenovac',
+  'Negotin',
   'Niš',
+  'Nova Varoš',
   'Novi Pazar',
   'Novi Sad',
+  'Obrenovac',
   'Pančevo',
+  'Paraćin',
+  'Petrovac na Mlavi',
   'Pirot',
   'Požarevac',
+  'Prekret',
+  'Prenovo',
+  'Probištip',
+  'Prijepolje',
   'Priština',
-  'Prokuplje',
-  'Smederevo',
+  'Raška',
+  'Ripanj',
+  'Ruma',
+  'Sejegac',
+  'Senta',
+  'Sjenica',
   'Sombor',
-  'Sremska Mitrovica',
   'Subotica',
+  'Surdulica',
+  'Sjenica',
+  'Temerin',
+  'Titel',
+  'Topola',
+  'Tutin',
   'Užice',
-  'Čačak',
-  'Šabac',
+  'Futog'
 ];

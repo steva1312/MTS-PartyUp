@@ -320,39 +320,9 @@ class _UslugaPageState extends State<UslugaPage> {
                           title: const Text('Rezervacija'),
                           content: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Form(
+                            child: SingleChildScrollView(
                                 child: Column(
                               children: <Widget>[
-                                TextFormField(
-                                  controller: _imePrezimeController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Ime i prezime',
-                                      border: OutlineInputBorder()),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Unesite ime i prezime';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                TextFormField(
-                                  controller: _brojTelefonaController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Broj telefona',
-                                      border: OutlineInputBorder()),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Unesite broj telefona';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
                                 TextFormField(
                                   controller: _datumController,
                                   decoration: const InputDecoration(
@@ -417,6 +387,10 @@ class _UslugaPageState extends State<UslugaPage> {
                                       .set(
                                         '',
                                       );
+                                  await uslugeRef
+                                      .child(widget.usluga.id)
+                                      .child('ZauzetDatum')
+                                      .set(_datumController.text);
                                   await korisniciRef
                                       .child(auth.currentUser!.uid)
                                       .child('Rezervacije')
@@ -431,7 +405,7 @@ class _UslugaPageState extends State<UslugaPage> {
                                         return AlertDialog(
                                           title: const Text('Rezervacija'),
                                           content: const Text(
-                                              'Uspešno ste rezervisali uslugu'),
+                                              'Uspešno ste poslali rezervaciju'),
                                           actions: [
                                             ElevatedButton(
                                                 onPressed: () {
