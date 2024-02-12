@@ -24,16 +24,15 @@ class Home extends StatefulWidget {
   String? profilePictureUrl;
   final Map<String, String> galerijaUrls;
 
-  Home({
-    super.key,
-    required this.rezervacijeSnapshot,
-    required this.usluge,
-    required this.profilePictureUrl,
-    required this.isOwner,
-    required this.vlasnikUsluga,
-    required this.profilePicturesUrls,
-    required this.galerijaUrls
-  });
+  Home(
+      {super.key,
+      required this.rezervacijeSnapshot,
+      required this.usluge,
+      required this.profilePictureUrl,
+      required this.isOwner,
+      required this.vlasnikUsluga,
+      required this.profilePicturesUrls,
+      required this.galerijaUrls});
 
   @override
   State<Home> createState() => _HomeState();
@@ -49,10 +48,9 @@ class _HomeState extends State<Home> {
     super.initState();
     print(widget.isOwner);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
-      systemNavigationBarColor: Colors.white,
-      statusBarColor: Colors.white,
-      systemNavigationBarIconBrightness: Brightness.dark
-    ));
+        systemNavigationBarColor: Colors.white,
+        statusBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark));
 
     _animations();
   }
@@ -126,101 +124,128 @@ class _HomeState extends State<Home> {
           ),
 
           if (widget.isOwner == true)
-          Positioned(
-            top: 5,
-            width: sw,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [ ElevatedButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (context) => UslugaPage(
-                          isOwner: widget.isOwner,
-                          profilePictureUrl: widget.profilePictureUrl!,
-                          usluga: widget.vlasnikUsluga!,
-                        )
-                    )
-                );
-              }, 
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10)
-                  )
-                )
-              ),
-              icon: const Icon(Icons.remove_red_eye, size: 18,),
-              label: const Text('Pregledaj profil', style: TextStyle(fontSize: 12)),
-            ),
-                const SizedBox(height: 5,),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute( 
-                        builder: (context) => VlasnikIzmeniProfil(
-                          usluga: widget.vlasnikUsluga!, 
-                          profilePictureUrl: widget.profilePictureUrl!,
-                          galerijaSlike: widget.galerijaUrls,
-                        )
-                      )
-                    );
-                  }, 
-                
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10)
-                      )
-                    )
+            Positioned(
+              top: 5,
+              width: sw,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => UslugaPage(
+                                isOwner: widget.isOwner,
+                                profilePictureUrl: widget.profilePictureUrl!,
+                                usluga: widget.vlasnikUsluga!,
+                              )));
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10)))),
+                    icon: const Icon(
+                      Icons.remove_red_eye,
+                      size: 18,
+                    ),
+                    label: const Text('Pregledaj profil',
+                        style: TextStyle(fontSize: 12)),
                   ),
-                  icon: const Icon(Icons.edit, size: 18,),
-                  label: const Text('Uredi profil', style: TextStyle(fontSize: 12)),
-                ),
-               
-                const SizedBox(height: 5,),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (context) {
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => VlasnikIzmeniProfil(
+                                usluga: widget.vlasnikUsluga!,
+                                profilePictureUrl: widget.profilePictureUrl!,
+                                galerijaSlike: widget.galerijaUrls,
+                              )));
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10)))),
+                    icon: const Icon(
+                      Icons.edit,
+                      size: 18,
+                    ),
+                    label: const Text('Uredi profil',
+                        style: TextStyle(fontSize: 12)),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) {
+                        if (widget.isOwner == true) {
+                          return RezervacijeVlasnik(
+                              usluga: widget.vlasnikUsluga);
+                        } else {
+                          return const RezervacijeKorisnik();
+                        }
+                      }));
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10)))),
+                    icon: const Icon(
+                      Icons.calendar_month,
+                      size: 18,
+                    ),
+                    label: const Text('Rezervacije',
+                        style: TextStyle(fontSize: 12)),
+                  ),
+                ],
+              ),
+            ),
+          if (widget.isOwner == false)
+            Positioned(
+                top: 5,
+                width: sw,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (context) {
                           if (widget.isOwner == true) {
-                            return RezervacijeVlasnik(usluga: widget.vlasnikUsluga);
-                          }
-                          else {
+                            return RezervacijeVlasnik(
+                                usluga: widget.vlasnikUsluga);
+                          } else {
                             return const RezervacijeKorisnik();
                           }
-                        }
-                        
-                        )
-                    
-                );
-              }, 
-
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10)
-                  )
-                )
-              ),
-              icon: const Icon(Icons.calendar_month, size: 18,),
-              label: const Text('Rezervacije', style: TextStyle(fontSize: 12)),
-            ),
-              ],
-            ),
-          ),
-
+                        }));
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                          shape: const RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)))),
+                      icon: const Icon(
+                        Icons.calendar_month,
+                        size: 18,
+                      ),
+                      label: const Text('Rezervacije',
+                          style: TextStyle(fontSize: 12)),
+                    ),
+                  ],
+                )),
           //center
           AnimatedPositioned(
             curve: Curves.fastEaseInToSlowEaseOut,
@@ -231,14 +256,13 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[0] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                      Usluge2(
-                        tipUsluge: TipUsluge.prostori,
-                        usluge: widget.usluge,
-                        profilePicturesUrls: widget.profilePicturesUrls,
-                        isOwner: widget.isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.prostori,
+                          usluge: widget.usluge,
+                          profilePicturesUrls: widget.profilePicturesUrls,
+                          isOwner: widget.isOwner,
+                        )));
               },
               child: Container(
                 decoration:
@@ -263,14 +287,13 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[1] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                    Usluge2(
-                        tipUsluge: TipUsluge.muzika,
-                        usluge: widget.usluge,
-                        profilePicturesUrls: widget.profilePicturesUrls,
-                        isOwner: widget.isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.muzika,
+                          usluge: widget.usluge,
+                          profilePicturesUrls: widget.profilePicturesUrls,
+                          isOwner: widget.isOwner,
+                        )));
               },
               child: Container(
                 decoration:
@@ -295,14 +318,13 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[2] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                    Usluge2(
-                        tipUsluge: TipUsluge.fotografi,
-                        usluge: widget.usluge,
-                        profilePicturesUrls: widget.profilePicturesUrls,
-                        isOwner: widget.isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.fotografi,
+                          usluge: widget.usluge,
+                          profilePicturesUrls: widget.profilePicturesUrls,
+                          isOwner: widget.isOwner,
+                        )));
               },
               child: Container(
                 decoration:
@@ -327,14 +349,13 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[5] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                    Usluge2(
-                        tipUsluge: TipUsluge.torte,
-                        usluge: widget.usluge,
-                        profilePicturesUrls: widget.profilePicturesUrls,
-                        isOwner: widget.isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.torte,
+                          usluge: widget.usluge,
+                          profilePicturesUrls: widget.profilePicturesUrls,
+                          isOwner: widget.isOwner,
+                        )));
               },
               child: Container(
                 decoration:
@@ -359,14 +380,13 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[3] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                    Usluge2(
-                        tipUsluge: TipUsluge.ketering,
-                        usluge: widget.usluge,
-                        profilePicturesUrls: widget.profilePicturesUrls,
-                        isOwner: widget.isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.ketering,
+                          usluge: widget.usluge,
+                          profilePicturesUrls: widget.profilePicturesUrls,
+                          isOwner: widget.isOwner,
+                        )));
               },
               child: Container(
                 decoration:
@@ -391,14 +411,13 @@ class _HomeState extends State<Home> {
             height: pocetakAnimacije[4] ? w : 0,
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) =>
-                    Usluge2(
-                        tipUsluge: TipUsluge.dekoracije,
-                        usluge: widget.usluge,
-                        profilePicturesUrls: widget.profilePicturesUrls,
-                        isOwner: widget.isOwner,
-                      )));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Usluge2(
+                          tipUsluge: TipUsluge.dekoracije,
+                          usluge: widget.usluge,
+                          profilePicturesUrls: widget.profilePicturesUrls,
+                          isOwner: widget.isOwner,
+                        )));
               },
               child: Container(
                 decoration:
@@ -413,8 +432,6 @@ class _HomeState extends State<Home> {
             ),
           )
         ],
-
-        
       ),
     );
   }
@@ -439,46 +456,43 @@ class _HomeState extends State<Home> {
               setState(() {
                 widget.isOwner = false;
               });
-              Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (context) => const Splash()));
-            } 
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const Splash()));
+            }
           },
-          icon: widget.isOwner != null ? 
-          const Icon(
-            Icons.logout,
-            color: Colors.black,
-          ) :
-          const Icon(
-            Icons.person,
-            color: Colors.black,
-          ),
+          icon: widget.isOwner != null
+              ? const Icon(
+                  Icons.logout,
+                  color: Colors.black,
+                )
+              : const Icon(
+                  Icons.person,
+                  color: Colors.black,
+                ),
         ),
         actions: [
           if (widget.isOwner != true)
-          IconButton(
-            onPressed: () {
-              // if (widget.isOwner == false) {
-              //   Navigator.of(context).push(
-              //       MaterialPageRoute(
-              //           builder: (context) => RezervacijeVlasnik(usluga: widget.vlasnikUsluga!,)
-              //       )
-              //   );
-              // } else {
-                Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (context) => Bookmark(
+            IconButton(
+              onPressed: () {
+                // if (widget.isOwner == false) {
+                //   Navigator.of(context).push(
+                //       MaterialPageRoute(
+                //           builder: (context) => RezervacijeVlasnik(usluga: widget.vlasnikUsluga!,)
+                //       )
+                //   );
+                // } else {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Bookmark(
                           isOwner: widget.isOwner,
                           profilePicturesUrls: widget.profilePicturesUrls,
                           usluge: widget.usluge,
-                        )
-                    )
-                );
-            },
-            icon: const Icon(
-              Icons.bookmark,
-              color: Colors.black,
+                        )));
+              },
+              icon: const Icon(
+                Icons.bookmark,
+                color: Colors.black,
+              ),
             ),
-          ),
         ]);
   }
 }
